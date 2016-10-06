@@ -83,19 +83,27 @@ function pushbuttonLoadReference_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%Global variable home is defined in evalSpectraJPK_OpeningFcn. This holds
+%the default home directory to start in the uigetfile dialog.
+
 global home
 
 [filename,path]  = uigetfile([home '/*.*']);
 
+%Stop if dialog was cancled.
 if filename==0
     return
 end
 
+%Load complex forward and backward interferograms.
 [IFfw, IFbw] = loadJPKspectra([path filename]);
 
+%Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
 [fwRef,wn] = JPKFFT(IFfw,4096,8,0.2);
 [bwRef,wn] = JPKFFT(IFbw,4096,8,0.2);
 
+%Save interferograms, spectra and wavenumber arrays in handles and
+%workspace variables.
 handles.IFfwRef = IFfw;
 handles.IFbwRef = IFbw;
 handles.fwRef = fwRef;
@@ -140,20 +148,26 @@ function pushbuttonLoadSample_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%Global variable home is defined in evalSpectraJPK_OpeningFcn. This holds
+%the default home directory to start in the uigetfile dialog.
 global home
 
 [filename,path]  = uigetfile([home '/*.*']);
 
+%Stop if dialog was cancled.
 if filename==0
     return
 end
 
-IFfw = loadJPKspectra([path filename]);
-IFbw = IFfw;
+%Load complex forward and backward interferograms.
+[IFfw, IFbw] = loadJPKspectra([path filename]);
 
+%Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
 [fwSample,wn] = JPKFFT(IFfw,4096,8,0.2);
 [bwSample,wn] = JPKFFT(IFbw,4096,8,0.2);
 
+%Save interferograms, spectra and wavenumber arrays in handles and
+%workspace variables.
 handles.IFfwSample = IFfw;
 handles.IFbwSample = IFbw;
 handles.fwSample = fwSample;
