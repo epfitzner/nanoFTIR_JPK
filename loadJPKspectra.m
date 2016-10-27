@@ -16,7 +16,7 @@ function [ IFfw, IFbw ] = loadJPKspectra(filename)
     %Create complex interferograms by using the corresponding real and
     %imaginary parts of one interferogram.
     for i=1:n
-        IFfw(i,:) = data(i,:)+1i*data(i+2*n,:);
-        IFbw(i+n,:) = data(i,:)+1i*data(i+3*n,:);
+        IFfw(i,:) = data(i,:)+1i*data(i+n,:);
+        IFbw(i,:) = data(i+2*n,:)+1i*data(i+3*n,:);
     end
 end
