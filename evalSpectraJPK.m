@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 06-Oct-2016 11:08:39
+% Last Modified by GUIDE v2.5 27-Oct-2016 18:49:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -98,9 +98,12 @@ end
 %Load complex forward and backward interferograms.
 [IFfw, IFbw] = loadJPKspectra([path filename]);
 
+%Get number of points for FFT from the text edit editNumPointsFFT
+n = str2num(get(handles.editNumPointsFFT,'string'));
+
 %Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
-[fwRef,wn] = JPKFFT(IFfw,4096,8,0.2);
-[bwRef,wn] = JPKFFT(IFbw,4096,8,0.2);
+[fwRef,wn] = JPKFFT(IFfw,n,8,0.2);
+[bwRef,wn] = JPKFFT(IFbw,n,8,0.2);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -162,9 +165,12 @@ end
 %Load complex forward and backward interferograms.
 [IFfw, IFbw] = loadJPKspectra([path filename]);
 
+%Get number of points for FFT from the text edit editNumPointsFFT
+n = str2num(get(handles.editNumPointsFFT,'string'));
+
 %Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
-[fwSample,wn] = JPKFFT(IFfw,4096,8,0.2);
-[bwSample,wn] = JPKFFT(IFbw,4096,8,0.2);
+[fwSample,wn] = JPKFFT(IFfw,n,8,0.2);
+[bwSample,wn] = JPKFFT(IFbw,n,8,0.2);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -188,3 +194,26 @@ function checkboxReferencePlot_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkboxReferencePlot
+
+
+
+function editNumPointsFFT_Callback(hObject, eventdata, handles)
+% hObject    handle to editNumPointsFFT (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of editNumPointsFFT as text
+%        str2double(get(hObject,'String')) returns contents of editNumPointsFFT as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function editNumPointsFFT_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editNumPointsFFT (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
