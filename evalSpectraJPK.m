@@ -204,7 +204,11 @@ function editNumPointsFFT_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of editNumPointsFFT as text
 %        str2double(get(hObject,'String')) returns contents of editNumPointsFFT as a double
+value = str2num(get(handles.editNumPointsFFT,'string'));
 
+if round(log2(value)) ~= log2(value)
+    set(handles.editNumPointsFFT,'string',num2str(2^round(log2(value))));
+end
 
 % --- Executes during object creation, after setting all properties.
 function editNumPointsFFT_CreateFcn(hObject, eventdata, handles)
