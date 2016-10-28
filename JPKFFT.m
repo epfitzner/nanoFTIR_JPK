@@ -28,10 +28,10 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff)
 
 %Find Maximum of the alligned averaged interferogram in a window
 %cutoff:1-cutoff
-    IFavg = (mean(abs(IF_),1));
+    IFavg = (abs(mean(IF_,1)));
     [~, maxIdx] = max(abs(IFavg(round(size(IFavg,2)*cutoff):round(size(IFavg(1,:),2)*(1-cutoff)))-mean(IFavg)));
     
-    maxIdx = maxIdx(1,1)+round(size(IFavg,2)*cutoff)+3;
+    maxIdx = maxIdx(1,1)+round(size(IFavg,2)*cutoff);
     
     for i = 1:size(IF_,1)
 %Cut Interferograms 
@@ -63,7 +63,7 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff)
     
 %Check alignement of spectra
     figure
-    plot(real(IF'))  
+    plot(abs(IF'))  
     
 %Shift Interferogram maximum to first point in array 
     IF = circshift(IF,round(-length/2)+1,2);
