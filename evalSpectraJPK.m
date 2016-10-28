@@ -128,7 +128,7 @@ function pushbuttonPlotAmplitude_Callback(hObject, eventdata, handles)
 
 figure
 if get(handles.checkboxReferencePlot,'value')
-    plot(handles.wn,abs(mean(handles.fwSample)./mean(handles.fwRef)),handles.wn,abs(mean(handles.bwSample)./mean(handles.bwRef)))
+    plot(handles.wn,abs(mean(handles.fwSample./handles.fwRef)),handles.wn,abs(mean(handles.bwSample./handles.bwRef)))
 else
     plot(handles.wn,abs(mean(handles.fwSample)),handles.wn,abs(mean(handles.fwRef)),handles.wn,abs(mean(handles.bwSample)),handles.wn,abs(mean(handles.bwRef)))
 end
@@ -139,7 +139,7 @@ function pushbuttonPlotPhase_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 figure
 if get(handles.checkboxReferencePlot,'value')
-    plot(handles.wn,angle(mean(handles.fwSample)./mean(handles.fwRef)),handles.wn,angle(mean(handles.bwSample)./mean(handles.bwRef)))
+    plot(handles.wn,angle(mean(handles.fwSample./handles.fwRef)),handles.wn,angle(mean(handles.bwSample./handles.bwRef)))
 else
     plot(handles.wn,angle(mean(handles.fwSample)),handles.wn,angle(mean(handles.fwRef)),handles.wn,angle(mean(handles.bwSample)),handles.wn,angle(mean(handles.bwRef)))
 end
