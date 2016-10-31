@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 27-Oct-2016 18:49:06
+% Last Modified by GUIDE v2.5 31-Oct-2016 10:02:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -102,8 +102,10 @@ end
 n = str2num(get(handles.editNumPointsFFT,'string'));
 
 %Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
-[fwRef,wn] = JPKFFT(IFfw,n,8,0.2);
-[bwRef,wn] = JPKFFT(IFbw,n,8,0.2);
+checkAlignment = get(handles.checkboxCheckAlignment,'value');
+
+[fwRef,wn] = JPKFFT(IFfw,n,8,0.2,checkAlignment);
+[bwRef,wn] = JPKFFT(IFbw,n,8,0.2,checkAlignment);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -169,8 +171,10 @@ end
 n = str2num(get(handles.editNumPointsFFT,'string'));
 
 %Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
-[fwSample,wn] = JPKFFT(IFfw,n,8,0.2);
-[bwSample,wn] = JPKFFT(IFbw,n,8,0.2);
+checkAlignment = get(handles.checkboxCheckAlignment,'value');
+
+[fwSample,wn] = JPKFFT(IFfw,n,8,0.2,checkAlignment);
+[bwSample,wn] = JPKFFT(IFbw,n,8,0.2,checkAlignment);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -221,3 +225,12 @@ function editNumPointsFFT_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in checkboxCheckAlignment.
+function checkboxCheckAlignment_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxCheckAlignment (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxCheckAlignment

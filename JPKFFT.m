@@ -1,4 +1,4 @@
-function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff)  
+function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment)  
 
 %Average Interferograms
     averageInterferograms = false;
@@ -59,9 +59,11 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff)
 %Zerofilling Interferogram
     IF = [IF zeros(size(IF,1),N*(zerofilling-1))];
     
-%Check alignement of spectra
-    figure
-    plot(abs(IF'))  
+%Check alignement of spectra optically
+    if checkAlignment
+        figure
+        plot(real(IF'))  
+    end
     
 %Shift Interferogram maximum to first point in array 
     IF = circshift(IF,round(-length/2)+1,2);
