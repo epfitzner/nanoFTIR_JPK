@@ -6,8 +6,6 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff)
     if averageInterferograms
         IF_ = mean(IF,1);
     end
-%Flip interferograms such that positive x axis means less OPD (where the reference puls laggs the tip puls behind)    
-    IF_ = fliplr(IF_);
     
 %Create placeholder for IF
     IF = zeros(size(IF_,1),length);
