@@ -62,7 +62,8 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment)
 %Check alignement of spectra optically
     if checkAlignment
         figure
-        plot(real(IF'))  
+        plot(real(IF'))
+        xlim[length/2*0.9:length/2*1.1];
     end
     
 %Shift Interferogram maximum to first point in array 
