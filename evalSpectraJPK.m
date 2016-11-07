@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 31-Oct-2016 10:02:40
+% Last Modified by GUIDE v2.5 02-Nov-2016 15:03:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -104,8 +104,13 @@ n = str2num(get(handles.editNumPointsFFT,'string'));
 %Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
 checkAlignment = get(handles.checkboxCheckAlignment,'value');
 
-[fwRef,wn] = JPKFFT(IFfw,n,8,0.2,checkAlignment);
-[bwRef,wn] = JPKFFT(IFbw,n,8,0.2,checkAlignment);
+%Get Mode: either just take sample side or reference side or both
+mode = get(handles.popupmenuMode,'value');
+
+zerofilling = str2num(get(handles.editZeroFilling,'string'));
+
+[fwRef,wn] = JPKFFT(IFfw,n,zerofilling,0.2,checkAlignment,mode);
+[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.2,checkAlignment,mode);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -130,10 +135,16 @@ function pushbuttonPlotAmplitude_Callback(hObject, eventdata, handles)
 
 figure
 if get(handles.checkboxReferencePlot,'value')
-    plot(handles.wn,abs(mean(handles.fwSample./handles.fwRef)),handles.wn,abs(mean(handles.bwSample./handles.bwRef)))
+    plot(handles.wn,abs(mean(handles.fwSample)./mean(handles.fwRef)),handles.wn,abs(mean(handles.bwSample)./mean(handles.bwRef)))
 else
     plot(handles.wn,abs(mean(handles.fwSample)),handles.wn,abs(mean(handles.fwRef)),handles.wn,abs(mean(handles.bwSample)),handles.wn,abs(mean(handles.bwRef)))
 end
+
+xlabel 'Wavenumber [cm^{-1}]'
+set(gca,'XDir','rev')
+ylabel 'Abs(s) [V]'
+xlim([1300 2000]);
+
 % --- Executes on button press in pushbuttonPlotPhase.
 function pushbuttonPlotPhase_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbuttonPlotPhase (see GCBO)
@@ -141,11 +152,15 @@ function pushbuttonPlotPhase_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 figure
 if get(handles.checkboxReferencePlot,'value')
-    plot(handles.wn,angle(mean(handles.fwSample./handles.fwRef)),handles.wn,angle(mean(handles.bwSample./handles.bwRef)))
+    plot(handles.wn,angle(mean(handles.fwSample)./mean(handles.fwRef)),handles.wn,angle(mean(handles.bwSample)./mean(handles.bwRef)))
 else
     plot(handles.wn,angle(mean(handles.fwSample)),handles.wn,angle(mean(handles.fwRef)),handles.wn,angle(mean(handles.bwSample)),handles.wn,angle(mean(handles.bwRef)))
 end
 
+xlabel 'Wavenumber [cm^{-1}]'
+set(gca,'XDir','rev')
+ylabel '\phi(s) [rad]'
+xlim([1300 2000]);
 
 % --- Executes on button press in pushbuttonLoadSample.
 function pushbuttonLoadSample_Callback(hObject, eventdata, handles)
@@ -173,8 +188,13 @@ n = str2num(get(handles.editNumPointsFFT,'string'));
 %Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
 checkAlignment = get(handles.checkboxCheckAlignment,'value');
 
-[fwSample,wn] = JPKFFT(IFfw,n,8,0.2,checkAlignment);
-[bwSample,wn] = JPKFFT(IFbw,n,8,0.2,checkAlignment);
+%Get Mode: either just take sample side or reference side or both
+mode = get(handles.popupmenuMode,'value');
+
+zerofilling = str2num(get(handles.editZeroFilling,'string'));
+
+[fwSample,wn] = JPKFFT(IFfw,n,zerofilling,0.2,checkAlignment,mode);
+[bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.2,checkAlignment,mode);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -234,3 +254,67 @@ function checkboxCheckAlignment_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkboxCheckAlignment
+
+
+% --- Executes on selection change in popupmenuMode.
+function popupmenuMode_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenuMode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenuMode contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenuMode
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenuMode_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenuMode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbuttonPlotImag.
+function pushbuttonPlotImag_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonPlotImag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+figure
+if get(handles.checkboxReferencePlot,'value')
+    plot(handles.wn,imag(mean(handles.fwSample)./mean(handles.fwRef)),handles.wn,imag(mean(handles.bwSample)./mean(handles.bwRef)))
+else
+    plot(handles.wn,imag(mean(handles.fwSample)),handles.wn,imag(mean(handles.fwRef)),handles.wn,imag(mean(handles.bwSample)),handles.wn,imag(mean(handles.bwRef)))
+end
+
+xlabel 'Wavenumber [cm^{-1}]'
+set(gca,'XDir','rev')
+ylabel 'Im(s) [V]'
+xlim([1300 2000]);
+
+
+
+function editZeroFilling_Callback(hObject, eventdata, handles)
+% hObject    handle to editZeroFilling (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of editZeroFilling as text
+%        str2double(get(hObject,'String')) returns contents of editZeroFilling as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function editZeroFilling_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editZeroFilling (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

@@ -1,4 +1,4 @@
-function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment)  
+function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mode)  
 
 %Average Interferograms
     averageInterferograms = false;
@@ -16,8 +16,11 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment)
         
 %Calculate the offset of the individual interferograms with cross
 %correlating them to the first interferogram
-        C = crossCorrelation((IF_(i,:)),(IF_(1,:)));
-        [~, maxIdxC] = max(C);
+        ref = 1;
+        
+        C = crossCorrelation(real(IF_(i,:)),real(IF_(ref,:)));
+        [~, maxIdxC] = max((C));
+        
         maxIdxC = maxIdxC-(size(C,2)+1)/2;
 %Shift individual interferograms according the cross correlation such that
 %all interferograms overlay
@@ -66,17 +69,30 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment)
         xlim([length/2*0.9 length/2*1.1]);
     end
     
-%Shift Interferogram maximum to first point in array 
-    IF = circshift(IF,round(-length/2)+1,2);
-     
+    
+%Shift Interferogram maximum to first point in array
+    IF = circshift(IF,round(-length/2),2);
+    
+%Fill either nothing, right side or left side with zeros. I.e. selecting
+%both, reference side or sample side.
+    switch mode
+        case 2
+            IF(:,end-length+1:end) = zeros(size(IF,1),length);
+            %IF(:,end-length:end-1) = fliplr(IF(:,1:length));
+        case 3
+            IF(:,1:length) = zeros(size(IF,1),length);
+            %IF(:,1:length) = fliplr(IF(:,end-length:end-1));
+    end
+
+    %plot(fftshift(real(IF')))
 %FFT
     FFT = fft(IF,[],2);   
 
 %Calculate the wavenumber array by assuming the points are spearated by
 %HeNe fringes
     wn = linspace(0,1/(632.8e-9*100),length*zerofilling);
-    
-    sprintf(['Nominal resolution: ' num2str(abs(wn(2)-wn(1))*zerofilling) ' 1/cm']);
+
+    disp(['Nominal resolution: ' num2str(abs(wn(2)-wn(1))*zerofilling) ' 1/cm']);
 %Average Spectra
     %FFT = mean(FFT,1);
 end
