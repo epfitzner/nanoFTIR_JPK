@@ -135,7 +135,17 @@ function pushbuttonPlotAmplitude_Callback(hObject, eventdata, handles)
 
 figure
 if get(handles.checkboxReferencePlot,'value')
-    plot(handles.wn,abs(mean(handles.fwSample)./mean(handles.fwRef)),handles.wn,abs(mean(handles.bwSample)./mean(handles.bwRef)))
+    wn = handles.wn;
+    fwSpect = abs(mean(handles.fwSample)./mean(handles.fwRef));
+    bwSpect = abs(mean(handles.bwSample)./mean(handles.bwRef));
+    h = plot(wn,fwSpect,wn,bwSpect);
+    [fwS,~] = calcStdDev(handles.fwSample,handles.fwRef);
+    [bwS,~] = calcStdDev(handles.bwSample,handles.bwRef);
+    fwS = abs(fwS);
+    bwS = abs(bwS);
+    patch([wn fliplr(wn) wn(1)], [fwSpect-fwS fliplr(fwSpect+fwS) fwSpect(1)-fwS(1)],'b','EdgeColor','none','FaceAlpha',0.1)
+    patch([wn fliplr(wn) wn(1)], [bwSpect-bwS fliplr(bwSpect+bwS) bwSpect(1)-bwS(1)],'r','EdgeColor','none','FaceAlpha',0.1)
+    uistack(h,'top');
 else
     plot(handles.wn,abs(mean(handles.fwSample)),handles.wn,abs(mean(handles.fwRef)),handles.wn,abs(mean(handles.bwSample)),handles.wn,abs(mean(handles.bwRef)))
 end
@@ -152,7 +162,15 @@ function pushbuttonPlotPhase_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 figure
 if get(handles.checkboxReferencePlot,'value')
-    plot(handles.wn,angle(mean(handles.fwSample)./mean(handles.fwRef)),handles.wn,angle(mean(handles.bwSample)./mean(handles.bwRef)))
+    wn = handles.wn;
+    fwSpect = angle(mean(handles.fwSample)./mean(handles.fwRef));
+    bwSpect = angle(mean(handles.bwSample)./mean(handles.bwRef));
+    h = plot(wn,fwSpect,wn,bwSpect);
+    [~,fwP] = calcStdDev(handles.fwSample,handles.fwRef);
+    [~,bwP] = calcStdDev(handles.bwSample,handles.bwRef);
+    patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)],'b','EdgeColor','none','FaceAlpha',0.1)
+    patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)],'r','EdgeColor','none','FaceAlpha',0.1)
+    uistack(h,'top')
 else
     plot(handles.wn,angle(mean(handles.fwSample)),handles.wn,angle(mean(handles.fwRef)),handles.wn,angle(mean(handles.bwSample)),handles.wn,angle(mean(handles.bwRef)))
 end
@@ -286,9 +304,20 @@ function pushbuttonPlotImag_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 figure
 if get(handles.checkboxReferencePlot,'value')
-    plot(handles.wn,imag(mean(handles.fwSample)./mean(handles.fwRef)),handles.wn,imag(mean(handles.bwSample)./mean(handles.bwRef)))
+    wn = handles.wn;
+    fwSpect = imag(mean(handles.fwSample)./mean(handles.fwRef));
+    bwSpect = imag(mean(handles.bwSample)./mean(handles.bwRef));
+    h = plot(wn,fwSpect,wn,bwSpect);
+    [fwI,~] = calcStdDev(handles.fwSample,handles.fwRef);
+    [bwI,~] = calcStdDev(handles.bwSample,handles.bwRef);
+    fwI = imag(fwI);
+    bwI = imag(bwI);
+    patch([wn fliplr(wn) wn(1)], [fwSpect-fwI fliplr(fwSpect+fwI) fwSpect(1)-fwI(1)],'b','EdgeColor','none','FaceAlpha',0.1)
+    patch([wn fliplr(wn) wn(1)], [bwSpect-bwI fliplr(bwSpect+bwI) bwSpect(1)-bwI(1)],'r','EdgeColor','none','FaceAlpha',0.1)
+    uistack(h,'top');
 else
-    plot(handles.wn,imag(mean(handles.fwSample)),handles.wn,imag(mean(handles.fwRef)),handles.wn,imag(mean(handles.bwSample)),handles.wn,imag(mean(handles.bwRef)))
+    wn = handles.wn;
+    plot(wn,imag(mean(handles.fwSample)),wn,imag(mean(handles.fwRef)),wn,imag(mean(handles.bwSample)),wn,imag(mean(handles.bwRef)))
 end
 
 xlabel 'Wavenumber [cm^{-1}]'
