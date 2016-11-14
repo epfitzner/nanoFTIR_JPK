@@ -18,8 +18,8 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
 %correlating them to the first interferogram
         ref = 1;
         
-        C = crossCorrelation(real(IF_(i,:)),real(IF_(ref,:)));
-        [~, maxIdxC] = max((C));
+        C = crossCorrelation((IF_(i,:)),(IF_(ref,:)));
+        [~, maxIdxC] = max(real(C));
         
         maxIdxC = maxIdxC-(size(C,2)+1)/2;
 %Shift individual interferograms according the cross correlation such that
@@ -65,7 +65,7 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
 %Check alignement of spectra optically
     if checkAlignment
         figure
-        plot(real(IF'))
+        plot(imag(IF'))
         xlim([length/2*0.9 length/2*1.1]);
     end
     
@@ -77,14 +77,15 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
 %both, reference side or sample side.
     switch mode
         case 2
-            IF(:,end-length+1:end) = zeros(size(IF,1),length);
-            %IF(:,end-length:end-1) = fliplr(IF(:,1:length));
+            %IF(:,end-length+1:end) = zeros(size(IF,1),length);
+            IF(:,end-length+2:end) = fliplr(IF(:,2:length));
         case 3
-            IF(:,1:length) = zeros(size(IF,1),length);
-            %IF(:,1:length) = fliplr(IF(:,end-length:end-1));
+            %IF(:,1:length) = zeros(size(IF,1),length);
+            IF(:,1:length) = fliplr(IF(:,end-length:end-1));
     end
 
-    %plot(fftshift(real(IF')))
+    %figure
+    %plot((real(IF')))
 %FFT
     FFT = fft(IF,[],2);   
 
