@@ -146,13 +146,14 @@ if get(handles.checkboxReferencePlot,'value')
     patch([wn fliplr(wn) wn(1)], [fwSpect-fwS fliplr(fwSpect+fwS) fwSpect(1)-fwS(1)],'b','EdgeColor','none','FaceAlpha',0.1)
     patch([wn fliplr(wn) wn(1)], [bwSpect-bwS fliplr(bwSpect+bwS) bwSpect(1)-bwS(1)],'r','EdgeColor','none','FaceAlpha',0.1)
     uistack(h,'top');
+    ylabel '|s_n / {s_n}^{ref}|'
 else
     plot(handles.wn,abs(mean(handles.fwSample)),handles.wn,abs(mean(handles.fwRef)),handles.wn,abs(mean(handles.bwSample)),handles.wn,abs(mean(handles.bwRef)))
+    ylabel '|s_n| [V]'
 end
 
 xlabel 'Wavenumber [cm^{-1}]'
 set(gca,'XDir','rev')
-ylabel 'Abs(s) [V]'
 xlim([1300 2000]);
 
 % --- Executes on button press in pushbuttonPlotPhase.
@@ -171,13 +172,14 @@ if get(handles.checkboxReferencePlot,'value')
     patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)],'b','EdgeColor','none','FaceAlpha',0.1)
     patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)],'r','EdgeColor','none','FaceAlpha',0.1)
     uistack(h,'top')
+    ylabel '\phi_n - {\phi_n}^{ref} [rad]'
 else
     plot(handles.wn,angle(mean(handles.fwSample)),handles.wn,angle(mean(handles.fwRef)),handles.wn,angle(mean(handles.bwSample)),handles.wn,angle(mean(handles.bwRef)))
+    ylabel '\phi_n [rad]'
 end
 
 xlabel 'Wavenumber [cm^{-1}]'
 set(gca,'XDir','rev')
-ylabel '\phi(s) [rad]'
 xlim([1300 2000]);
 
 % --- Executes on button press in pushbuttonLoadSample.
@@ -315,14 +317,15 @@ if get(handles.checkboxReferencePlot,'value')
     patch([wn fliplr(wn) wn(1)], [fwSpect-fwI fliplr(fwSpect+fwI) fwSpect(1)-fwI(1)],'b','EdgeColor','none','FaceAlpha',0.1)
     patch([wn fliplr(wn) wn(1)], [bwSpect-bwI fliplr(bwSpect+bwI) bwSpect(1)-bwI(1)],'r','EdgeColor','none','FaceAlpha',0.1)
     uistack(h,'top');
+    ylabel 'Im(s_n/{s_n}^{ref})'
 else
     wn = handles.wn;
     plot(wn,imag(mean(handles.fwSample)),wn,imag(mean(handles.fwRef)),wn,imag(mean(handles.bwSample)),wn,imag(mean(handles.bwRef)))
+    ylabel 'Im(s_n) [V]'
 end
 
 xlabel 'Wavenumber [cm^{-1}]'
 set(gca,'XDir','rev')
-ylabel 'Im(s) [V]'
 xlim([1300 2000]);
 
 
