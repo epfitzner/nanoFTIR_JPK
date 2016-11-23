@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 02-Nov-2016 15:03:30
+% Last Modified by GUIDE v2.5 23-Nov-2016 11:36:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -107,10 +107,14 @@ checkAlignment = get(handles.checkboxCheckAlignment,'value');
 %Get Mode: either just take sample side or reference side or both
 mode = get(handles.popupmenuMode,'value');
 
+%Get Phasecorrection
+phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
+
+%Get zerofilling-factor
 zerofilling = str2num(get(handles.editZeroFilling,'string'));
 
-[fwRef,wn] = JPKFFT(IFfw,n,zerofilling,0.2,checkAlignment,mode);
-[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.2,checkAlignment,mode);
+[fwRef,wn] = JPKFFT(IFfw,n,zerofilling,0.2,checkAlignment,mode,phaseCorrection);
+[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.2,checkAlignment,mode,phaseCorrection);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -211,10 +215,14 @@ checkAlignment = get(handles.checkboxCheckAlignment,'value');
 %Get Mode: either just take sample side or reference side or both
 mode = get(handles.popupmenuMode,'value');
 
+%Get Phasecorrection
+phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
+
+%Get zerofilling-factor
 zerofilling = str2num(get(handles.editZeroFilling,'string'));
 
-[fwSample,wn] = JPKFFT(IFfw,n,zerofilling,0.2,checkAlignment,mode);
-[bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.2,checkAlignment,mode);
+[fwSample,wn] = JPKFFT(IFfw,n,zerofilling,0.2,checkAlignment,mode,phaseCorrection);
+[bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.2,checkAlignment,mode,phaseCorrection);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -350,3 +358,12 @@ function editZeroFilling_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in checkboxPhaseCorrection.
+function checkboxPhaseCorrection_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxPhaseCorrection (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxPhaseCorrection

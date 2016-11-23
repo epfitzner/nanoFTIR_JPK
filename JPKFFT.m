@@ -1,4 +1,4 @@
-function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mode)  
+function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mode, phaseCorrection)  
 
 %Average Interferograms
     averageInterferograms = false;
@@ -30,48 +30,54 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
 %Find Maximum of the alligned averaged interferogram in a window
 %cutoff:1-cutoff
     IFavg = (abs(mean(IF_,1)));
-    [~, maxIdx] = max(abs(IFavg(round(size(IFavg,2)*cutoff):round(size(IFavg(1,:),2)*(1-cutoff)))-mean(IFavg)));
-    
-    maxIdx = maxIdx(1,1)+round(size(IFavg,2)*cutoff);
-    
+
+    if false
+        %Find center burst from regular maximum searching
+        [~, maxIdx] = max(abs(IFavg(round(size(IFavg,2)*cutoff):round(size(IFavg(1,:),2)*(1-cutoff)))-mean(IFavg)));
+        maxIdx = maxIdx(1,1)+round(size(IFavg,2)*cutoff);
+    else
+        %Find center burst from shifting a 4-term BMH apodization across
+        %the average interferogram
+        maxIdx = optimizeOffsetToBMHApodiziation(IFavg,cutoff)+round(size(IFavg,2)*cutoff);
+    end
+        
     for i = 1:size(IF_,1)
 %Cut Interferograms 
         IF(i,:) = IF_(i,maxIdx-length/2:maxIdx+length/2-1);
-
-        N = length;
-        n = linspace(0,N-1,N);
-
-%Apodization: 4-term Blackman-Harris (a_0=0.35875, a_1=0.48829, a_2=0.14128, a_3=0.01168)
         
-        a_0=0.35875; 
-        a_1=0.48829; 
-        a_2=0.14128; 
-        a_3=0.01168;
-
+        %Decide for Apodization type
+    
         if true
             %Blackman-Harris apodization
-            w = a_0 - a_1*cos(2*pi*n/(N-1)) + a_2*cos(4*pi*n/(N-1)) - a_3*cos(6*pi*n/(N-1));
+            w = blackmanharrisApodization(length,4);
         else
             %Triangle apodization
-            w = [linspace(0,1,length/2) linspace(1,0,length/2)];
+            w = ones(1,length);%[linspace(0,1,length/2) linspace(1,0,length/2)];
         end
         
         IF(i,:) = IF(i,:).*w;
+    
+        %Phasecorrection
+        w = blackmanharrisApodization(length/8,4);
+        w = [zeros(1,length*7/16) w zeros(1,length*7/16)];
+        IFPC(i,:) = IF(i,:).*w;
     end
     
 %Zerofilling Interferogram
-    IF = [IF zeros(size(IF,1),N*(zerofilling-1))];
+    IF = [IF zeros(size(IF,1),length*(zerofilling-1))];
+    IFPC = [IFPC zeros(size(IFPC,1),length*(zerofilling-1))];
     
 %Check alignement of spectra optically
     if checkAlignment
         figure
-        plot(imag(IF'))
+        plot(real(IF'))
         xlim([length/2*0.9 length/2*1.1]);
     end
     
     
 %Shift Interferogram maximum to first point in array
     IF = circshift(IF,round(-length/2),2);
+    IFPC = circshift(IFPC,round(-length/2),2);
     
 %Fill either nothing, right side or left side with zeros. I.e. selecting
 %both, reference side or sample side.
@@ -84,11 +90,15 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
             IF(:,1:length) = fliplr(IF(:,end-length:end-1));
     end
 
-    %figure
-    %plot((real(IF')))
 %FFT
     FFT = fft(IF,[],2);   
-
+    FFTPC = fft(IFPC,[],2);
+    
+%Do Phasecorrection    
+    if phaseCorrection
+        FFT = FFT./(FFTPC./abs(FFTPC));
+    end
+    
 %Calculate the wavenumber array by assuming the points are spearated by
 %HeNe fringes
     wn = linspace(0,1/(632.8e-9*100),length*zerofilling);

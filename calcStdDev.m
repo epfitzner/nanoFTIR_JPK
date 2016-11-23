@@ -17,4 +17,7 @@ function [stdDevComplex, stdDevAngle] = calcStdDev(spectrum,ref)
     
     x = spectrum./ref;
     stdDevAngle = 1./(1+(real(x)./imag(x)).^2).*sqrt((real(stdDevComplex)./imag(x)).^2 + (imag(stdDevComplex).*real(x)./imag(x).^2).^2);
+    
+    
+    %probiere: einzelne Phasenspektren errechenen und davon dann Std/sqrt(n).
 end
