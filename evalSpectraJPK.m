@@ -138,8 +138,10 @@ function pushbuttonPlotAmplitude_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 figure
+
+wn = handles.wn;
+
 if get(handles.checkboxReferencePlot,'value')
-    wn = handles.wn;
     if get(handles.checkboxComplexConj,'value')
         fwSpect = abs(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
         bwSpect = abs(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
@@ -161,7 +163,12 @@ if get(handles.checkboxReferencePlot,'value')
     uistack(h,'top');
     ylabel '|s_n / {s_n}^{ref}|'
 else
-    plot(handles.wn,abs(mean(handles.fwSample)),handles.wn,abs(mean(handles.fwRef)),handles.wn,abs(mean(handles.bwSample)),handles.wn,abs(mean(handles.bwRef)))
+    if get(handles.checkboxComplexConj,'value')
+        plot(wn,abs(mean(handles.fwSample+fliplr(conj(handles.fwSample)))./2),wn,abs(mean(handles.fwRef+fliplr(conj(handles.fwRef)))./2),wn,abs(mean(handles.bwSample+fliplr(conj(handles.bwSample)))./2),wn,abs(mean(handles.bwRef+fliplr(conj(handles.bwRef)))./2))
+    else
+        plot(wn,abs(mean(handles.fwSample)),wn,abs(mean(handles.fwRef)),wn,abs(mean(handles.bwSample)),wn,abs(mean(handles.bwRef)))
+    end
+    
     ylabel '|s_n| [V]'
 end
 
@@ -175,8 +182,10 @@ function pushbuttonPlotPhase_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 figure
+
+wn = handles.wn;
+
 if get(handles.checkboxReferencePlot,'value')
-    wn = handles.wn;
     if get(handles.checkboxComplexConj,'value')
         fwSpect = angle(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
         bwSpect = angle(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
@@ -198,7 +207,12 @@ if get(handles.checkboxReferencePlot,'value')
     uistack(h,'top')
     ylabel '\phi_n - {\phi_n}^{ref} [rad]'
 else
-    plot(handles.wn,angle(mean(handles.fwSample)),handles.wn,angle(mean(handles.fwRef)),handles.wn,angle(mean(handles.bwSample)),handles.wn,angle(mean(handles.bwRef)))
+    if get(handles.checkboxComplexConj,'value')
+        plot(wn,angle(mean(handles.fwSample+fliplr(conj(handles.fwSample)))./2),wn,angle(mean(handles.fwRef+fliplr(conj(handles.fwRef)))./2),wn,angle(mean(handles.bwSample+fliplr(conj(handles.bwSample)))./2),wn,angle(mean(handles.bwRef+fliplr(conj(handles.bwRef)))./2))
+    else
+        plot(wn,angle(mean(handles.fwSample)),wn,angle(mean(handles.fwRef)),wn,angle(mean(handles.bwSample)),wn,angle(mean(handles.bwRef)))
+    end
+    
     ylabel '\phi_n [rad]'
 end
 
@@ -333,8 +347,10 @@ function pushbuttonPlotImag_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 figure
+
+wn = handles.wn;
+
 if get(handles.checkboxReferencePlot,'value')
-    wn = handles.wn;
     if get(handles.checkboxComplexConj,'value')
         fwSpect = imag(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
         bwSpect = imag(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
@@ -357,8 +373,12 @@ if get(handles.checkboxReferencePlot,'value')
     uistack(h,'top');
     ylabel 'Im(s_n/{s_n}^{ref})'
 else
-    wn = handles.wn;
-    plot(wn,imag(mean(handles.fwSample)),wn,imag(mean(handles.fwRef)),wn,imag(mean(handles.bwSample)),wn,imag(mean(handles.bwRef)))
+    if get(handles.checkboxComplexConj,'value')
+        plot(wn,imag(mean(handles.fwSample+fliplr(conj(handles.fwSample)))./2),wn,imag(mean(handles.fwRef+fliplr(conj(handles.fwRef)))./2),wn,imag(mean(handles.bwSample+fliplr(conj(handles.bwSample)))./2),wn,imag(mean(handles.bwRef+fliplr(conj(handles.bwRef)))./2))
+    else
+        plot(wn,imag(mean(handles.fwSample)),wn,imag(mean(handles.fwRef)),wn,imag(mean(handles.bwSample)),wn,imag(mean(handles.bwRef)))
+    end
+    
     ylabel 'Im(s_n) [V]'
 end
 
