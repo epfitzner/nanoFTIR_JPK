@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 20-Dec-2016 20:44:51
+% Last Modified by GUIDE v2.5 03-Feb-2017 15:14:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -140,11 +140,20 @@ function pushbuttonPlotAmplitude_Callback(hObject, eventdata, handles)
 figure
 if get(handles.checkboxReferencePlot,'value')
     wn = handles.wn;
-    fwSpect = abs(mean(handles.fwSample)./mean(handles.fwRef));
-    bwSpect = abs(mean(handles.bwSample)./mean(handles.bwRef));
+    if get(handles.checkboxComplexConj,'value')
+        fwSpect = abs(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
+        bwSpect = abs(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
+            
+        [fwS,~] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
+        [bwS,~] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+    else
+        fwSpect = abs(mean(handles.fwSample)./mean(handles.fwRef));
+        bwSpect = abs(mean(handles.bwSample)./mean(handles.bwRef));
+            
+        [fwS,~] = calcStdDev(handles.fwSample,handles.fwRef);
+        [bwS,~] = calcStdDev(handles.bwSample,handles.bwRef);
+    end
     h = plot(wn,fwSpect,wn,bwSpect);
-    [fwS,~] = calcStdDev(handles.fwSample,handles.fwRef);
-    [bwS,~] = calcStdDev(handles.bwSample,handles.bwRef);
     fwS = abs(fwS);
     bwS = abs(bwS);
     patch([wn fliplr(wn) wn(1)], [fwSpect-fwS fliplr(fwSpect+fwS) fwSpect(1)-fwS(1)],'b','EdgeColor','none','FaceAlpha',0.1)
@@ -168,11 +177,22 @@ function pushbuttonPlotPhase_Callback(hObject, eventdata, handles)
 figure
 if get(handles.checkboxReferencePlot,'value')
     wn = handles.wn;
-    fwSpect = angle(mean(handles.fwSample)./mean(handles.fwRef));
-    bwSpect = angle(mean(handles.bwSample)./mean(handles.bwRef));
+    if get(handles.checkboxComplexConj,'value')
+        fwSpect = angle(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
+        bwSpect = angle(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
+            
+        [~,fwP] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
+        [~,bwP] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+    else
+        fwSpect = angle(mean(handles.fwSample)./mean(handles.fwRef));
+        bwSpect = angle(mean(handles.bwSample)./mean(handles.bwRef));
+    
+        [~,fwP] = calcStdDev(handles.fwSample,handles.fwRef);
+        [~,bwP] = calcStdDev(handles.bwSample,handles.bwRef);
+    end
+    
+    
     h = plot(wn,fwSpect,wn,bwSpect);
-    [~,fwP] = calcStdDev(handles.fwSample,handles.fwRef);
-    [~,bwP] = calcStdDev(handles.bwSample,handles.bwRef);
     patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)],'b','EdgeColor','none','FaceAlpha',0.1)
     patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)],'r','EdgeColor','none','FaceAlpha',0.1)
     uistack(h,'top')
@@ -315,11 +335,21 @@ function pushbuttonPlotImag_Callback(hObject, eventdata, handles)
 figure
 if get(handles.checkboxReferencePlot,'value')
     wn = handles.wn;
-    fwSpect = imag(mean(handles.fwSample)./mean(handles.fwRef));
-    bwSpect = imag(mean(handles.bwSample)./mean(handles.bwRef));
+    if get(handles.checkboxComplexConj,'value')
+        fwSpect = imag(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
+        bwSpect = imag(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
+            
+        [fwI,~] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
+        [bwI,~] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+    else
+        fwSpect = imag(mean(handles.fwSample)./mean(handles.fwRef));
+        bwSpect = imag(mean(handles.bwSample)./mean(handles.bwRef));
+    
+        [fwI,~] = calcStdDev(handles.fwSample,handles.fwRef);
+        [bwI,~] = calcStdDev(handles.bwSample,handles.bwRef);
+    end
+    
     h = plot(wn,fwSpect,wn,bwSpect);
-    [fwI,~] = calcStdDev(handles.fwSample,handles.fwRef);
-    [bwI,~] = calcStdDev(handles.bwSample,handles.bwRef);
     fwI = imag(fwI);
     bwI = imag(bwI);
     patch([wn fliplr(wn) wn(1)], [fwSpect-fwI fliplr(fwSpect+fwI) fwSpect(1)-fwI(1)],'b','EdgeColor','none','FaceAlpha',0.1)
@@ -410,3 +440,12 @@ function pushbuttonSaveSpectrum_Callback(hObject, eventdata, handles)
     
     assignin('base',char(get(handles.editSpectrumName,'String')),spectrum);
     
+
+
+% --- Executes on button press in checkboxComplexConj.
+function checkboxComplexConj_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxComplexConj (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxComplexConj
