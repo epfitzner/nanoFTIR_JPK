@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 23-Nov-2016 11:36:41
+% Last Modified by GUIDE v2.5 20-Dec-2016 20:44:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -99,7 +99,7 @@ end
 [IFfw, IFbw] = loadJPKspectra([path filename]);
 
 %Get number of points for FFT from the text edit editNumPointsFFT
-n = str2num(get(handles.editNumPointsFFT,'string'));
+n = str2double(get(handles.editNumPointsFFT,'string'));
 
 %Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
 checkAlignment = get(handles.checkboxCheckAlignment,'value');
@@ -111,10 +111,10 @@ mode = get(handles.popupmenuMode,'value');
 phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 
 %Get zerofilling-factor
-zerofilling = str2num(get(handles.editZeroFilling,'string'));
+zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
-[fwRef,wn] = JPKFFT(IFfw,n,zerofilling,0.2,checkAlignment,mode,phaseCorrection);
-[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.2,checkAlignment,mode,phaseCorrection);
+[fwRef,~] = JPKFFT(IFfw,n,zerofilling,0.4,checkAlignment,mode,phaseCorrection);
+[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.4,checkAlignment,mode,phaseCorrection);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -207,7 +207,7 @@ end
 [IFfw, IFbw] = loadJPKspectra([path filename]);
 
 %Get number of points for FFT from the text edit editNumPointsFFT
-n = str2num(get(handles.editNumPointsFFT,'string'));
+n = str2double(get(handles.editNumPointsFFT,'string'));
 
 %Do alignment of interferograms, apodization, cutting, zerofilling and FFT.
 checkAlignment = get(handles.checkboxCheckAlignment,'value');
@@ -219,10 +219,10 @@ mode = get(handles.popupmenuMode,'value');
 phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 
 %Get zerofilling-factor
-zerofilling = str2num(get(handles.editZeroFilling,'string'));
+zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
-[fwSample,wn] = JPKFFT(IFfw,n,zerofilling,0.2,checkAlignment,mode,phaseCorrection);
-[bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.2,checkAlignment,mode,phaseCorrection);
+[fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.4,checkAlignment,mode,phaseCorrection);
+[bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.4,checkAlignment,mode,phaseCorrection);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -367,3 +367,46 @@ function checkboxPhaseCorrection_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkboxPhaseCorrection
+
+
+
+function editSpectrumName_Callback(hObject, eventdata, handles)
+% hObject    handle to editSpectrumName (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of editSpectrumName as text
+%        str2double(get(hObject,'String')) returns contents of editSpectrumName as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function editSpectrumName_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editSpectrumName (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbuttonSaveSpectrum.
+function pushbuttonSaveSpectrum_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonSaveSpectrum (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+    spectrum.wn = handles.wn;
+    spectrum.forwardSample = handles.fwSample;
+    spectrum.forwardRef = handles.fwRef;
+    spectrum.backwardSample = handles.bwSample;
+    spectrum.backwardRef = handles.bwRef;
+    spectrum.forwardSampleStdDev = calcStdDev(handles.fwSample);
+    spectrum.forwardRefStdDev = calcStdDev(handles.fwRef);
+    spectrum.backwardSampleStdDev = calcStdDev(handles.bwSample);
+    spectrum.backwardRefStdDev = calcStdDev(handles.bwRef);
+    
+    assignin('base',char(get(handles.editSpectrumName,'String')),spectrum);
+    
