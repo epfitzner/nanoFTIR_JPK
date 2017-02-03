@@ -1,5 +1,19 @@
 function [stdDevComplex, stdDevAngle] = calcStdDev(spectrum,ref)
-
+    
+    rangeRef = abs(ref) > max(abs(ref),[],2)*ones(1,size(ref,2))*0.1;
+    rangeSpectrum = abs(spectrum) > max(abs(spectrum),[],2)*ones(1,size(spectrum,2))*0.1;
+    
+    for i = 1:size(rangeRef,1)
+      phaseOffsetRef(i) = mean(angle(ref(i,rangeRef(i,:))),2);
+    end
+    
+    for i = 1:size(rangeSpectrum,1)
+        phaseOffsetSpectrum(i) = mean(angle(spectrum(i,rangeSpectrum(i,:))),2);
+    end
+    
+    ref = ref.*(exp(-1i.*phaseOffsetRef'*ones(1,size(ref,2))));
+    spectrum = spectrum.*(exp(-1i.*phaseOffsetSpectrum'*ones(1,size(spectrum,2))));
+    
     if nargin == 1
         stdDevComplex = sqrt(1/size(spectrum,1))*std(spectrum,1);
         stdDevAngle = 0;

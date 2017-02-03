@@ -4,7 +4,7 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
     averageInterferograms = false;
     
     if averageInterferograms
-        IF_ = mean(IF,1);
+        IF_ = mean(IF_,1);
     end
     
 %Create placeholder for IF
@@ -31,7 +31,7 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
 %cutoff:1-cutoff
     IFavg = (abs(mean(IF_,1)));
 
-    if false
+    if true
         %Find center burst from regular maximum searching
         [~, maxIdx] = max(abs(IFavg(round(size(IFavg,2)*cutoff):round(size(IFavg(1,:),2)*(1-cutoff)))-mean(IFavg)));
         maxIdx = maxIdx(1,1)+round(size(IFavg,2)*cutoff);
@@ -58,8 +58,8 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
         IF(i,:) = IF(i,:).*w;
     
         %Phasecorrection
-        w = blackmanharrisApodization(length/8,4);
-        w = [zeros(1,length*7/16) w zeros(1,length*7/16)];
+        w = blackmanharrisApodization(length/16,4);
+        w = [zeros(1,length*15/32) w zeros(1,length*15/32)];
         IFPC(i,:) = IF(i,:).*w;
     end
     
