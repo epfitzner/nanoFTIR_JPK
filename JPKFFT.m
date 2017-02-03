@@ -47,12 +47,12 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
         
         %Decide for Apodization type
     
-        if true
+        if false
             %Blackman-Harris apodization
             w = blackmanharrisApodization(length,4);
         else
             %Triangle apodization
-            w = ones(1,length);%[linspace(0,1,length/2) linspace(1,0,length/2)];
+            w = [linspace(0,1,length/2) linspace(1,0,length/2)];%ones(1,length);
         end
         
         IF(i,:) = IF(i,:).*w;
