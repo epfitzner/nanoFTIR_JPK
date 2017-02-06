@@ -459,7 +459,8 @@ function pushbuttonSaveSpectrum_Callback(hObject, eventdata, handles)
     spectrum.backwardRefStdDev = calcStdDev(handles.bwRef);
     
     assignin('base',char(get(handles.editSpectrumName,'String')),spectrum);
-    
+
+    guidata(hObject, handles);
 
 
 % --- Executes on button press in checkboxComplexConj.
@@ -492,3 +493,4 @@ function listbox2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
