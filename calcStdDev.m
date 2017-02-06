@@ -21,7 +21,7 @@ function [stdDevComplex, stdDevAngle] = calcStdDev(spectrum,ref)
     %Calculate the quantile for 95% confidence and the present number of
     %individual spectra
     
-    t = percentile(0.95,size(spectrum,1));
+    t = tinv(0.975,size(spectrum,1));
     
     if nargin == 1
         stdDevComplex = t*sqrt(1/size(spectrum,1))*std(spectrum,1);
