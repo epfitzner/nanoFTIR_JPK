@@ -1,4 +1,4 @@
-function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mode, phaseCorrection)  
+function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mode, phaseCorrection)  
 
 %Average Interferograms
     averageInterferograms = false;
@@ -47,7 +47,7 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
         
         %Decide for Apodization type
     
-        if false
+        if true
             %Blackman-Harris apodization
             w = blackmanharrisApodization(length,4);
         else
@@ -58,8 +58,8 @@ function [FFT,wn] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, mod
         IF(i,:) = IF(i,:).*w;
     
         %Phasecorrection
-        w = blackmanharrisApodization(length/16,4);
-        w = [zeros(1,length*15/32) w zeros(1,length*15/32)];
+        w = blackmanharrisApodization(length/32,4);
+        w = [zeros(1,length*31/64) w zeros(1,length*31/64)];
         IFPC(i,:) = IF(i,:).*w;
     end
     
