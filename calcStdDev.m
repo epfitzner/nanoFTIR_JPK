@@ -17,15 +17,21 @@ function [stdDevComplex, stdDevAngle] = calcStdDev(spectrum,ref)
     ref = ref.*(exp(-1i.*phaseOffsetRef'*ones(1,size(ref,2))));
     spectrum = spectrum.*(exp(-1i.*phaseOffsetSpectrum'*ones(1,size(spectrum,2))));
     
+    
+    %Calculate the quantile for 95% confidence and the present number of
+    %individual spectra
+    
+    t = percentile(0.95,size(spectrum,1));
+    
     if nargin == 1
-        stdDevComplex = sqrt(1/size(spectrum,1))*std(spectrum,1);
+        stdDevComplex = t*sqrt(1/size(spectrum,1))*std(spectrum,1);
         stdDevAngle = 0;
         
         return
     end
     
-    stdDev = sqrt(1/size(spectrum,1))*std(spectrum,1);
-    stdDevRef = sqrt(1/size(ref,1))*std(ref,1);
+    stdDev = t*sqrt(1/size(spectrum,1))*std(spectrum,1);
+    stdDevRef = t*sqrt(1/size(ref,1))*std(ref,1);
 
     spectrum = mean(spectrum,1);
     ref = mean(ref,1);
