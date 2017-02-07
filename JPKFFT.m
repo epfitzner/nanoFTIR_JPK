@@ -47,7 +47,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         
         %Decide for Apodization type
     
-        if true
+        if false
             %Blackman-Harris apodization
             w = blackmanharrisApodization(length,4);
         else
@@ -84,7 +84,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
     switch mode
         case 2
             %IF(:,end-length+1:end) = zeros(size(IF,1),length);
-            IF(:,end-length+2:end) = fliplr(IF(:,2:length));
+            IF(:,end-length:end-1) = fliplr(IF(:,1:length));
         case 3
             %IF(:,1:length) = zeros(size(IF,1),length);
             IF(:,1:length) = fliplr(IF(:,end-length:end-1));
