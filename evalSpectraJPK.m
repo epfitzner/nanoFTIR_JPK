@@ -146,18 +146,17 @@ if get(handles.checkboxReferencePlot,'value')
         fwSpect = abs(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
         bwSpect = abs(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
             
-        [fwS,~] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
-        [bwS,~] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+        [~,fwS,~] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
+        [~,bwS,~] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
     else
         fwSpect = abs(mean(handles.fwSample)./mean(handles.fwRef));
         bwSpect = abs(mean(handles.bwSample)./mean(handles.bwRef));
             
-        [fwS,~] = calcStdDev(handles.fwSample,handles.fwRef);
-        [bwS,~] = calcStdDev(handles.bwSample,handles.bwRef);
+        [~,fwS,~] = calcStdDev(handles.fwSample,handles.fwRef);
+        [~,bwS,~] = calcStdDev(handles.bwSample,handles.bwRef);
     end
     h = plot(wn,fwSpect,wn,bwSpect);
-    fwS = abs(fwS);
-    bwS = abs(bwS);
+
     patch([wn fliplr(wn) wn(1)], [fwSpect-fwS fliplr(fwSpect+fwS) fwSpect(1)-fwS(1)],'b','EdgeColor','none','FaceAlpha',0.1)
     patch([wn fliplr(wn) wn(1)], [bwSpect-bwS fliplr(bwSpect+bwS) bwSpect(1)-bwS(1)],'r','EdgeColor','none','FaceAlpha',0.1)
     uistack(h,'top');
@@ -190,14 +189,14 @@ if get(handles.checkboxReferencePlot,'value')
         fwSpect = angle(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
         bwSpect = angle(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
             
-        [~,fwP] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
-        [~,bwP] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+        [~,~,fwP] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
+        [~,~,bwP] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
     else
         fwSpect = angle(mean(handles.fwSample)./mean(handles.fwRef));
         bwSpect = angle(mean(handles.bwSample)./mean(handles.bwRef));
     
-        [~,fwP] = calcStdDev(handles.fwSample,handles.fwRef);
-        [~,bwP] = calcStdDev(handles.bwSample,handles.bwRef);
+        [~,~,fwP] = calcStdDev(handles.fwSample,handles.fwRef);
+        [~,~,bwP] = calcStdDev(handles.bwSample,handles.bwRef);
     end
     
     
@@ -355,14 +354,14 @@ if get(handles.checkboxReferencePlot,'value')
         fwSpect = imag(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
         bwSpect = imag(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
             
-        [fwI,~] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
-        [bwI,~] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+        [fwI,~,~] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
+        [bwI,~,~] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
     else
         fwSpect = imag(mean(handles.fwSample)./mean(handles.fwRef));
         bwSpect = imag(mean(handles.bwSample)./mean(handles.bwRef));
     
-        [fwI,~] = calcStdDev(handles.fwSample,handles.fwRef);
-        [bwI,~] = calcStdDev(handles.bwSample,handles.bwRef);
+        [fwI,~,~] = calcStdDev(handles.fwSample,handles.fwRef);
+        [bwI,~,~] = calcStdDev(handles.bwSample,handles.bwRef);
     end
     
     h = plot(wn,fwSpect,wn,bwSpect);
