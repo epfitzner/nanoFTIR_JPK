@@ -1,7 +1,6 @@
-function [ output_args ] = complexConjugateAvg( input_args )
-%COMPLEXCONJUGATEAVG Summary of this function goes here
-%   Detailed explanation goes here
+function CC = complexConjugateAvg(spectrum)
+%%Calculate the Complex conjugate spectrum of a complex spectrum
 
+    CC = (spectrum+fliplr(circshift(conj(spectrum),[-1 -1])))./2;
 
 end
-
