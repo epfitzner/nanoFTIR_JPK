@@ -3,6 +3,7 @@ function [stdDevComplex, stdDevAbs, stdDevAngle] = calcStdDev(sample,ref)
     if nargin == 1
        ref = zeros(size(sample)); 
     end
+    
     rangeRef = abs(ref) > max(abs(ref),[],2)*ones(1,size(ref,2))*0.1;
     rangeSpectrum = abs(sample) > max(abs(sample),[],2)*ones(1,size(sample,2))*0.1;
     
@@ -17,13 +18,12 @@ function [stdDevComplex, stdDevAbs, stdDevAngle] = calcStdDev(sample,ref)
     ref = ref.*(exp(-1i.*phaseOffsetRef'*ones(1,size(ref,2))));
     sample = sample.*(exp(-1i.*phaseOffsetSpectrum'*ones(1,size(sample,2))));
     
-    
-    %Calculate the quantile for 95% confidence and the present number of
-    %individual spectra
-    
+    %Check for License availability of Statistics Toolbox.
     [status,~] = license('checkout','Statistics_Toolbox');
     
     if status
+        %Calculate the quantile for 95% confidence and the present number of
+        %individual spectra
         t = tinv(0.975,size(sample,1));
     else
         warning('Statistics Toolbox license not available. t approximated as 2.');
@@ -38,13 +38,22 @@ function [stdDevComplex, stdDevAbs, stdDevAngle] = calcStdDev(sample,ref)
         return
     end
     
+    %Calculate error along real and imaginary part of the sample spectra
+    %seperately and store in a complex vector.
     stdDev = t*sqrt(1/size(sample,1))*(std(real(sample),1)+1i*std(imag(sample),1));
+    
+    %Calculate error along real and imaginary part of the reference spectra
+    %seperately and store in a complex vector.
     stdDevRef = t*sqrt(1/size(ref,1))*(std(real(ref),1)+1i*std(imag(ref),1));
 
+    %Caclulate the mean sample and reference spectra
     sample = mean(sample,1);
     ref = mean(ref,1);
     spectrum = sample./ref;
     
+    
+    %Caclulate the partial derivatives of real(spectrum) and imag(spectrum) along real(ref), real(sample),
+    %imag(ref) and imag(sample), respectively.
     dRedxR = (real(sample).*abs(ref).^2-2.*real(ref).*(real(sample).*real(ref)+imag(sample).*imag(ref)))./abs(ref).^4;
     dRedxS = real(ref)./abs(ref).^2;
     dRedyR = (imag(sample).*abs(ref).^2-2.*imag(ref).*(real(sample).*real(ref)+imag(sample).*imag(ref)))./abs(ref).^4;
