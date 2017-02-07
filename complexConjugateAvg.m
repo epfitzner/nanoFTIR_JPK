@@ -1,5 +1,5 @@
 function CC = complexConjugateAvg(spectrum)
-%%Calculate the Complex conjugate spectrum of a complex spectrum
+%%Calculate the average of a symmetric Complex conjugate spectrum
 
     CC = (spectrum+fliplr(circshift(conj(spectrum),[-1 -1])))./2;
 
