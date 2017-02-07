@@ -22,10 +22,10 @@ function [stdDevComplex, stdDevAngle] = calcStdDev(spectrum,ref)
     %individual spectra
     
     if license('checkout','Statistics_Toolbox')
+        t = tinv(0.975,size(spectrum,1));
+    else
         warnging('Statistics Toolbox license not available. T approximated as 2.');
         t = 2;
-    else
-        t = tinv(0.975,size(spectrum,1));
     end
         
     if nargin == 1
