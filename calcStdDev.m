@@ -21,10 +21,12 @@ function [stdDevComplex, stdDevAngle] = calcStdDev(spectrum,ref)
     %Calculate the quantile for 95% confidence and the present number of
     %individual spectra
     
-    if license('checkout','Statistics_Toolbox')
+    [status,~] = license('checkout','Statistics_Toolbox');
+    
+    if status
         t = tinv(0.975,size(spectrum,1));
     else
-        warning('Statistics Toolbox license not available. T approximated as 2.');
+        warning('Statistics Toolbox license not available. t approximated as 2.');
         t = 2;
     end
         
