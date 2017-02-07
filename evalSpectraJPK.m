@@ -143,11 +143,11 @@ wn = handles.wn;
 
 if get(handles.checkboxReferencePlot,'value')
     if get(handles.checkboxComplexConj,'value')
-        fwSpect = abs(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
-        bwSpect = abs(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
+        fwSpect = abs(mean(complexConjugateAvg(handles.fwSample))./mean(complexConjugateAvg(handles.fwRef)));
+        bwSpect = abs(mean(complexConjugateAvg(handles.bwSample))./mean(complexConjugateAvg(handles.bwRef)));
             
-        [~,fwS,~] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
-        [~,bwS,~] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+        [~,fwS,~] = calcStdDev(complexConjugateAvg(handles.fwSample),complexConjugateAvg(handles.fwRef));
+        [~,bwS,~] = calcStdDev(complexConjugateAvg(handles.bwSample),complexConjugateAvg(handles.bwRef));
     else
         fwSpect = abs(mean(handles.fwSample)./mean(handles.fwRef));
         bwSpect = abs(mean(handles.bwSample)./mean(handles.bwRef));
@@ -163,7 +163,7 @@ if get(handles.checkboxReferencePlot,'value')
     ylabel '|s_n / {s_n}^{ref}|'
 else
     if get(handles.checkboxComplexConj,'value')
-        plot(wn,abs(mean(handles.fwSample+fliplr(conj(handles.fwSample)))./2),wn,abs(mean(handles.fwRef+fliplr(conj(handles.fwRef)))./2),wn,abs(mean(handles.bwSample+fliplr(conj(handles.bwSample)))./2),wn,abs(mean(handles.bwRef+fliplr(conj(handles.bwRef)))./2))
+        plot(wn,abs(mean(complexConjugateAvg(handles.fwSample))),wn,abs(mean(complexConjugateAvg(handles.fwRef))),wn,abs(mean(complexConjugateAvg(handles.bwSample))),wn,abs(mean(complexConjugateAvg(handles.bwRef))))
     else
         plot(wn,abs(mean(handles.fwSample)),wn,abs(mean(handles.fwRef)),wn,abs(mean(handles.bwSample)),wn,abs(mean(handles.bwRef)))
     end
@@ -186,11 +186,11 @@ wn = handles.wn;
 
 if get(handles.checkboxReferencePlot,'value')
     if get(handles.checkboxComplexConj,'value')
-        fwSpect = angle(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
-        bwSpect = angle(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
+        fwSpect = angle(mean(complexConjugateAvg(handles.fwSample))./mean(complexConjugateAvg(handles.fwRef)));
+        bwSpect = angle(mean(complexConjugateAvg(handles.bwSample))./mean(complexConjugateAvg(handles.bwRef)));
             
-        [~,~,fwP] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
-        [~,~,bwP] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+        [~,~,fwP] = calcStdDev(complexConjugateAvg(handles.fwSample),complexConjugateAvg(handles.fwRef));
+        [~,~,bwP] = calcStdDev(complexConjugateAvg(handles.bwSample),complexConjugateAvg(handles.bwRef));
     else
         fwSpect = angle(mean(handles.fwSample)./mean(handles.fwRef));
         bwSpect = angle(mean(handles.bwSample)./mean(handles.bwRef));
@@ -207,7 +207,7 @@ if get(handles.checkboxReferencePlot,'value')
     ylabel '\phi_n - {\phi_n}^{ref} [rad]'
 else
     if get(handles.checkboxComplexConj,'value')
-        plot(wn,angle(mean(handles.fwSample+fliplr(conj(handles.fwSample)))./2),wn,angle(mean(handles.fwRef+fliplr(conj(handles.fwRef)))./2),wn,angle(mean(handles.bwSample+fliplr(conj(handles.bwSample)))./2),wn,angle(mean(handles.bwRef+fliplr(conj(handles.bwRef)))./2))
+        plot(wn,angle(mean(complexConjugateAvg(handles.fwSample))),wn,angle(mean(complexConjugateAvg(handles.fwRef))),wn,angle(mean(complexConjugateAvg(handles.bwSample))),wn,angle(mean(complexConjugateAvg(handles.bwRef))))
     else
         plot(wn,angle(mean(handles.fwSample)),wn,angle(mean(handles.fwRef)),wn,angle(mean(handles.bwSample)),wn,angle(mean(handles.bwRef)))
     end
@@ -351,11 +351,11 @@ wn = handles.wn;
 
 if get(handles.checkboxReferencePlot,'value')
     if get(handles.checkboxComplexConj,'value')
-        fwSpect = imag(mean((handles.fwSample+fliplr(conj(handles.fwSample)))./2)./mean((handles.fwRef+fliplr(conj(handles.fwRef)))./2));
-        bwSpect = imag(mean((handles.bwSample+fliplr(conj(handles.bwSample)))./2)./mean((handles.bwRef+fliplr(conj(handles.bwRef)))./2));
+        fwSpect = imag(mean(complexConjugateAvg(handles.fwSample))./mean(complexConjugateAvg(handles.fwRef)));
+        bwSpect = imag(mean(complexConjugateAvg(handles.bwSample))./mean(complexConjugateAvg(handles.bwRef)));
             
-        [fwI,~,~] = calcStdDev((handles.fwSample+fliplr(conj(handles.fwSample)))./2,(handles.fwRef+fliplr(conj(handles.fwRef)))./2);
-        [bwI,~,~] = calcStdDev((handles.bwSample+fliplr(conj(handles.bwSample)))./2,(handles.bwRef+fliplr(conj(handles.bwRef)))./2);
+        [fwI,~,~] = calcStdDev(complexConjugateAvg(handles.fwSample),complexConjugateAvg(handles.fwRef));
+        [bwI,~,~] = calcStdDev(complexConjugateAvg(handles.bwSample),complexConjugateAvg(handles.bwRef));
     else
         fwSpect = imag(mean(handles.fwSample)./mean(handles.fwRef));
         bwSpect = imag(mean(handles.bwSample)./mean(handles.bwRef));
@@ -373,7 +373,7 @@ if get(handles.checkboxReferencePlot,'value')
     ylabel 'Im(s_n/{s_n}^{ref})'
 else
     if get(handles.checkboxComplexConj,'value')
-        plot(wn,imag(mean(handles.fwSample+fliplr(conj(handles.fwSample)))./2),wn,imag(mean(handles.fwRef+fliplr(conj(handles.fwRef)))./2),wn,imag(mean(handles.bwSample+fliplr(conj(handles.bwSample)))./2),wn,imag(mean(handles.bwRef+fliplr(conj(handles.bwRef)))./2))
+        plot(wn,imag(mean(complexConjugateAvg(handles.fwSample))),wn,imag(mean(complexConjugateAvg(handles.fwRef))),wn,imag(mean(complexConjugateAvg(handles.bwSample))),wn,imag(mean(complexConjugateAvg(handles.bwRef))))
     else
         plot(wn,imag(mean(handles.fwSample)),wn,imag(mean(handles.fwRef)),wn,imag(mean(handles.bwSample)),wn,imag(mean(handles.bwRef)))
     end
