@@ -90,10 +90,15 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
             IF(:,1:length) = fliplr(IF(:,end-length:end-1));
     end
 
+%Shift maximum to first index position
+    IF = circshift(IF,[1 1]);
+    IFPC = circshift(IFPC,[1 1]);
+    
 %FFT
     FFT = fft(IF,[],2);   
     FFTPC = fft(IFPC,[],2);
     
+    plot(angle(FFT)')
 
 %Do Phasecorrection    
     if phaseCorrection
