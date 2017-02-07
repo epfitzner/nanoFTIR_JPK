@@ -58,8 +58,8 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         IF(i,:) = IF(i,:).*w;
     
         %Phasecorrection
-        w = blackmanharrisApodization(length/32,4);
-        w = [zeros(1,length*31/64) w zeros(1,length*31/64)];
+        w = blackmanharrisApodization(length/16,4);
+        w = [zeros(1,length*15/32) w zeros(1,length*15/32)];
         IFPC(i,:) = IF(i,:).*w;
     end
     
@@ -94,6 +94,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
     FFT = fft(IF,[],2);   
     FFTPC = fft(IFPC,[],2);
     
+
 %Do Phasecorrection    
     if phaseCorrection
         FFT = FFT./(FFTPC./abs(FFTPC));
