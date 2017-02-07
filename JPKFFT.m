@@ -97,8 +97,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %FFT
     FFT = fft(IF,[],2);   
     FFTPC = fft(IFPC,[],2);
-    
-    plot(angle(FFT)')
+
 
 %Do Phasecorrection    
     if phaseCorrection
