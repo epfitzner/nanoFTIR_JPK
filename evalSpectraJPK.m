@@ -113,8 +113,8 @@ phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 %Get zerofilling-factor
 zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
-[fwRef,~] = JPKFFT(IFfw,n,zerofilling,0.4,checkAlignment,mode,phaseCorrection);
-[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.4,checkAlignment,mode,phaseCorrection);
+[fwRef,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -254,8 +254,8 @@ phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 %Get zerofilling-factor
 zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
-[fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.4,checkAlignment,mode,phaseCorrection);
-[bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.4,checkAlignment,mode,phaseCorrection);
+[fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+[bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
