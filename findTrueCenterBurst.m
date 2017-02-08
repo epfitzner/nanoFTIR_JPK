@@ -15,4 +15,5 @@ opts.Exclude = excludedPoints;
 % Fit model to data.
 [fitresult, gof] = fit( xData, yData, ft, opts );
 
+pos = fitresult.d;
 end
