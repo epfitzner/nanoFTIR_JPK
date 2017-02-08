@@ -25,6 +25,8 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %Shift individual interferograms according the cross correlation such that
 %all interferograms overlay
         IF_(i,:) = circshift(IF_(i,:),-maxIdxC,2);
+        
+        centerBurstTrue(i) = find
     end
     
 
