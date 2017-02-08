@@ -26,7 +26,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %all interferograms overlay
         IF_(i,:) = circshift(IF_(i,:),-maxIdxC,2);
         
-        centerBurstTrue(i) = find
+        centerBurstTrue(i) = findTrueCenterBurst(IF_(i,:));
     end
     
 
