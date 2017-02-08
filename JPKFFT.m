@@ -12,7 +12,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
     
     for i = 1:size(IF_,1)        
 %Substract offset from each interferogram
-        %IF_(i,:) = IF_(i,:)-mean(IF_(i,:));
+        IF_(i,:) = IF_(i,:)-mean(IF_(i,:));
         
 %Calculate the offset of the individual interferograms with cross
 %correlating them to the first interferogram
@@ -26,6 +26,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %all interferograms overlay
         IF_(i,:) = circshift(IF_(i,:),-maxIdxC,2);
     end
+    
 
 %Find Maximum of the alligned averaged interferogram in a window
 %cutoff:1-cutoff
@@ -40,7 +41,8 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         %the average interferogram
         maxIdx = optimizeOffsetToBMHApodiziation(IFavg,cutoff)+round(size(IFavg,2)*cutoff);
     end
-        
+
+    
     for i = 1:size(IF_,1)
 %Cut Interferograms 
         IF(i,:) = IF_(i,maxIdx-length/2:maxIdx+length/2-1);
@@ -63,6 +65,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         IFPC(i,:) = IF(i,:).*w;
     end
     
+    
 %Zerofilling Interferogram
     IF = [IF zeros(size(IF,1),length*(zerofilling-1))];
     IFPC = [IFPC zeros(size(IFPC,1),length*(zerofilling-1))];
@@ -76,8 +79,8 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
     
     
 %Shift Interferogram maximum to first point in array
-    IF = circshift(IF,round(-length/2),2);
-    IFPC = circshift(IFPC,round(-length/2),2);
+    IF = circshift(IF,-(round(length/2))+1,2);
+    IFPC = circshift(IFPC,-(round(length/2))+1,2);
     
 %Fill either nothing, right side or left side with zeros. I.e. selecting
 %both, reference side or sample side.
@@ -90,10 +93,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
             IF(:,1:length) = fliplr(IF(:,end-length:end-1));
     end
 
-%Shift maximum to first index position
-    IF = circshift(IF,[1 1]);
-    IFPC = circshift(IFPC,[1 1]);
-    
+
 %FFT
     FFT = fft(IF,[],2);   
     FFTPC = fft(IFPC,[],2);
