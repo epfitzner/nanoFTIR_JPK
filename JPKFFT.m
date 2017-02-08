@@ -12,13 +12,13 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
     
     for i = 1:size(IF_,1)        
 %Substract offset from each interferogram
-        IF_(i,:) = IF_(i,:)-mean(IF_(i,:));
+        %IF_(i,:) = IF_(i,:)-mean(IF_(i,:));
         
 %Calculate the offset of the individual interferograms with cross
 %correlating them to the first interferogram
         ref = 1;
         
-        C = crossCorrelation((IF_(i,:)),(IF_(ref,:)));
+        C = crossCorrelation((IF_(i,round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))),(IF_(ref,round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))));
         [~, maxIdxC] = max(real(C));
         
         maxIdxC = maxIdxC-(size(C,2)+1)/2;
