@@ -88,14 +88,15 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %Fill either nothing, right side or left side with zeros. I.e. selecting
 %both, reference side or sample side.
         IF = ifft(FFT,[],2);
-
+        IFPC = ifft(FFTPC,[],2);
+        
         switch mode
             case 2
                 %IF(:,end-length+1:end) = zeros(size(IF,1),length);
-                IF(:,end-length+2:end) = fliplr(IF(:,2:length));
+                IF(:,end-length+2:end) = fliplr(IFPC(:,2:length));
             case 3
                 %IF(:,1:length) = zeros(size(IF,1),length);
-                IF(:,2:length) = fliplr(IF(:,end-length+2:end));
+                IF(:,2:length) = fliplr(IFPC(:,end-length+2:end));
         end
         FFT = fft(IF,[],2);
     end
