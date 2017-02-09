@@ -63,8 +63,8 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
             w = [linspace(0,1,length/2) linspace(1,0,length/2)];%ones(1,length);
             
             %Phasecorrection
-            wPC = [linspace(0,1,length/32) linspace(1,0,length/32)];
-            wPC = [zeros(1,length*15/32) wPC zeros(1,length*15/32)];
+            wPC = [linspace(0,1,length/64) linspace(1,0,length/64)];
+            wPC = [zeros(1,length*31/64) wPC zeros(1,length*31/64)];
         end
         
         IF(i,:) = IF(i,:).*w;   
@@ -108,8 +108,15 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 
     %Check alignement of spectra optically
     if checkAlignment
-        figure
+        scrsz = get(groot,'ScreenSize');
+        figure('Position',[scrsz(3)/4 scrsz(3)/4 scrsz(3)*2/4 scrsz(4)*3/4]);
+        
+        subplot(2,1,1)
         plot(real(fftshift(IF,2)'))
+        xlim([length*zerofilling/2*0.975 length*zerofilling/2*1.025]);
+        
+        subplot(2,1,2)
+        imagesc(real(fftshift(IF,2)))
         xlim([length*zerofilling/2*0.975 length*zerofilling/2*1.025]);
     end
 

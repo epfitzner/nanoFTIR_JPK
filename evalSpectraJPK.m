@@ -200,11 +200,11 @@ if get(handles.checkboxReferencePlot,'value')
     end
     
     
-    h = plot(wn,fwSpect,wn,bwSpect);
-    patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)],'b','EdgeColor','none','FaceAlpha',0.1)
-    patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)],'r','EdgeColor','none','FaceAlpha',0.1)
+    h = plot(wn,fwSpect*180/pi,wn,bwSpect*180/pi);
+    patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)]*180/pi,'b','EdgeColor','none','FaceAlpha',0.1)
+    patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)]*180/pi,'r','EdgeColor','none','FaceAlpha',0.1)
     uistack(h,'top')
-    ylabel '\phi_n - {\phi_n}^{ref} [rad]'
+    ylabel '\phi_n - {\phi_n}^{ref} [°]'
 else
     if get(handles.checkboxComplexConj,'value')
         plot(wn,angle(mean(complexConjugateAvg(handles.fwSample))),wn,angle(mean(complexConjugateAvg(handles.fwRef))),wn,angle(mean(complexConjugateAvg(handles.bwSample))),wn,angle(mean(complexConjugateAvg(handles.bwRef))))
