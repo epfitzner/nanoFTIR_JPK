@@ -25,8 +25,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %Shift individual interferograms according the cross correlation such that
 %all interferograms overlay
         IF_(i,:) = circshift(IF_(i,:),-maxIdxC,2);
-        
-        centerBurstTrue(i) = findTrueCenterBurst(IF_(i,:));
+
     end
     
 
@@ -72,29 +71,10 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
     IF = [IF zeros(size(IF,1),length*(zerofilling-1))];
     IFPC = [IFPC zeros(size(IFPC,1),length*(zerofilling-1))];
     
-%Check alignement of spectra optically
-    if checkAlignment
-        figure
-        plot(real(IF'))
-        xlim([length/2*0.9 length/2*1.1]);
-    end
-    
     
 %Shift Interferogram maximum to first point in array
     IF = circshift(IF,-(round(length/2))+1,2);
-    IFPC = circshift(IFPC,-(round(length/2))+1,2);
-    
-%Fill either nothing, right side or left side with zeros. I.e. selecting
-%both, reference side or sample side.
-    switch mode
-        case 2
-            %IF(:,end-length+1:end) = zeros(size(IF,1),length);
-            IF(:,end-length:end-1) = fliplr(IF(:,1:length));
-        case 3
-            %IF(:,1:length) = zeros(size(IF,1),length);
-            IF(:,1:length) = fliplr(IF(:,end-length:end-1));
-    end
-
+    IFPC = circshift(IFPC,-(round(length/2))+1,2);   
 
 %FFT
     FFT = fft(IF,[],2);   
@@ -104,8 +84,29 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %Do Phasecorrection    
     if phaseCorrection
         FFT = FFT./(FFTPC./abs(FFTPC));
+        
+%Fill either nothing, right side or left side with zeros. I.e. selecting
+%both, reference side or sample side.
+        IF = ifft(FFT,[],2);
+
+        switch mode
+            case 2
+                %IF(:,end-length+1:end) = zeros(size(IF,1),length);
+                IF(:,end-length+2:end) = fliplr(IF(:,2:length));
+            case 3
+                %IF(:,1:length) = zeros(size(IF,1),length);
+                IF(:,2:length) = fliplr(IF(:,end-length+2:end));
+        end
+        FFT = fft(IF,[],2);
     end
-    
+
+    %Check alignement of spectra optically
+    if checkAlignment
+        figure
+        plot(real(fftshift(IF,2)'))
+        xlim([length*zerofilling/2*0.975 length*zerofilling/2*1.025]);
+    end
+
 %Calculate the wavenumber array by assuming the points are spearated by
 %HeNe fringes
     wn = linspace(0,1/(632.8e-9*100),length*zerofilling);
