@@ -7,6 +7,8 @@ function STFT = STFT(IF,h)
     g = 1./(sqrt(2*pi).*h).*exp(-t.^2./(2*h^2));
     
     for i = 1:size(IF,2)
-        STFT(:,i) = IF.*circshift(g,[i i]);
+        STFT(:,i) = fft(IF.*circshift(g,[i i]));
     end
+    
+    STFT = fftshift(STFT,2)';
 end
