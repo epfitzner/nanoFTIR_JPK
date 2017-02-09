@@ -9,6 +9,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
     
 %Create placeholder for IF
     IF = zeros(size(IF_,1),length);
+    IFPC = zeros(size(IF_,1),length);
     
     for i = 1:size(IF_,1)        
 %Substract offset from each interferogram
@@ -50,21 +51,25 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         
         %Decide for Apodization type
     
-        if false
+        if true
             %Blackman-Harris apodization
             w = blackmanharrisApodization(length,4);
+            
+            %Phasecorrection
+            wPC = blackmanharrisApodization(length/16,4);
+            wPC = [zeros(1,length*15/32) wPC zeros(1,length*15/32)];
         else
             %Triangle apodization
             w = [linspace(0,1,length/2) linspace(1,0,length/2)];%ones(1,length);
+            
+            %Phasecorrection
+            wPC = [linspace(0,1,length/32) linspace(1,0,length/32)];
+            wPC = [zeros(1,length*15/32) wPC zeros(1,length*15/32)];
         end
         
-        IF(i,:) = IF(i,:).*w;
-    
-        %Phasecorrection
-        %w = blackmanharrisApodization(length/16,4);
-        w = [linspace(0,1,length/32) linspace(1,0,length/32)];
-        w = [zeros(1,length*15/32) w zeros(1,length*15/32)];
-        IFPC(i,:) = IF(i,:).*w;
+        IF(i,:) = IF(i,:).*w;   
+        
+        IFPC(i,:) = IF(i,:).*wPC;
     end
     
     
