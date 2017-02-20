@@ -44,7 +44,6 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         maxIdx = optimizeOffsetToBMHApodiziation(IFavg,cutoff)+round(size(IFavg,2)*cutoff);
     end
 
-    
     for i = 1:size(IF_,1)
 %Cut Interferograms 
         IF(i,:) = IF_(i,maxIdx-length/2:maxIdx+length/2-1);
@@ -124,7 +123,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %HeNe fringes
     wn = linspace(0,1/(632.8e-9*100),length*zerofilling);
 
-    disp(['Nominal resolution: ' num2str(abs(wn(2)-wn(1))*zerofilling) ' 1/cm']);
+    %disp(['Nominal resolution: ' num2str(abs(wn(2)-wn(1))*zerofilling) ' 1/cm']);
 %Average Spectra
     %FFT = mean(FFT,1);
 end

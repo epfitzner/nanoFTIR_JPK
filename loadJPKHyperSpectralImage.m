@@ -3,7 +3,7 @@ function [ IFHypfw, IFHypbw ] = loadJPKHyperSpectralImage( filename )
 %   Detailed explanation goes here
     
     data = readLabviewData(filename,4,'single',true);
-    IFHypfw = data(:,:,:,1:size(data,4)/2);
-    IFHypbw = data(:,:,:,size(data,4)/2+1:end);
+    IFHypfw = data(:,:,1:size(data,3)/2,:);
+    IFHypbw = data(:,:,size(data,3)/2+1:end,:);
 end
 
