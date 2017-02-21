@@ -88,6 +88,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %Do Phasecorrection    
     if phaseCorrection
         FFT = FFT./(FFTPC./abs(FFTPC));
+        FFTPC = FFTPC./(FFTPC./abs(FFTPC));
         
 %Fill either nothing, right side or left side with zeros. I.e. selecting
 %both, reference side or sample side.
