@@ -26,28 +26,28 @@ function imagescHyp( fw , bw , wnDisp , wn , refIdx )
     figure('Position',[scrsz(3)/6 scrsz(4)/6 scrsz(3)*4/6 scrsz(4)*5/6]);
         
     ax1 = subplot(2,2,1);
-    imagesc(abs(fw./fwRef))
+    imagesc(abs(fw./fwRef)')
     colormap(ax1,hot)
     colorbar
     set(gca,'YDir','normal')
     title '|{s_n}^{Forw}|'
     
     ax2 = subplot(2,2,2);
-    imagesc(angle(fw./fwRef))
+    imagesc(angle(fw./fwRef)')
     colormap(ax2,jet)
     colorbar
-    set(gca,'YDir','normal')
+    set(gca,'YDir','normal','XDir','normal')
     title 'Arg[{s_n}^{Forw}]'
     
     ax3 = subplot(2,2,3);
-    imagesc(abs(bw./bwRef))   
+    imagesc(abs(bw./bwRef)')   
     colormap(ax3,hot)
     colorbar
     set(gca,'YDir','normal')
     title '|{s_n}^{Backw}|'
     
     ax4 = subplot(2,2,4);
-    imagesc(angle(bw./bwRef))
+    imagesc(angle(bw./bwRef)')
     colormap(ax4,jet)
     colorbar
     set(gca,'YDir','normal')
