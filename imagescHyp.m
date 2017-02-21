@@ -23,7 +23,7 @@ function imagescHyp( fw , bw , wnDisp , wn , refIdx )
     end
 
     scrsz = get(groot,'ScreenSize');
-    figure('Position',[scrsz(3)/4 scrsz(3)/4 scrsz(3)*2/4 scrsz(4)*3/4]);
+    figure('Position',[scrsz(3)/6 scrsz(4)/6 scrsz(3)*4/6 scrsz(4)*5/6]);
         
     ax1 = subplot(2,2,1);
     imagesc(abs(fw./fwRef))
