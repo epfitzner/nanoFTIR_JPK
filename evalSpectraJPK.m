@@ -260,7 +260,9 @@ if iscell(filename)
         [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
         [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
 
-        
+        handles.fwSample = fwSample;
+        handles.bwSample = bwSample;
+        handles.wn = wn;
         %Check if filename is a valid variable name
         if ~isvarname(filename{i})
            name = 'XXX';
