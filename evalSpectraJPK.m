@@ -229,15 +229,12 @@ function pushbuttonLoadSample_Callback(hObject, eventdata, handles)
 %the default home directory to start in the uigetfile dialog.
 global home
 
-[filename,path]  = uigetfile([home '/*.*']);
+[filename,path]  = uigetfile([home '/*.*'],'Multiselect','on');
 
 %Stop if dialog was cancled.
-if filename==0
+if path == 0
     return
 end
-
-%Load complex forward and backward interferograms.
-[IFfw, IFbw] = loadJPKspectra([path filename]);
 
 %Get number of points for FFT from the text edit editNumPointsFFT
 n = str2double(get(handles.editNumPointsFFT,'string'));
@@ -254,8 +251,35 @@ phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 %Get zerofilling-factor
 zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
-[fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
-[bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+if iscell(filename)
+    for i = 1:size(filename,2)
+        %Load complex forward and backward interferograms.
+        [IFfw, IFbw] = loadJPKspectra([path filename{i}]);
+
+        %Execute Zerofilling, alignment, Phasecorrection and FFT
+        [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+        [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+
+        
+        %Check if filename is a valid variable name
+        if ~isvarname(filename{i})
+           name = 'XXX';
+        else
+            name = filename{i};
+        end
+        
+        %Save to Workspace if more than one file loaded
+        saveSpectrumToWS(hObject,eventdata,handles,name);
+    end
+else
+    %Load complex forward and backward interferograms.
+    [IFfw, IFbw] = loadJPKspectra([path filename]);
+
+    %Execute Zerofilling, alignment, Phasecorrection and FFT
+    [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+    [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+end
+    
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -447,20 +471,9 @@ function pushbuttonSaveSpectrum_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-    spectrum.wn = handles.wn;
-    spectrum.forwardSample = handles.fwSample;
-    spectrum.forwardRef = handles.fwRef;
-    spectrum.backwardSample = handles.bwSample;
-    spectrum.backwardRef = handles.bwRef;
-    spectrum.forwardSampleStdDev = calcStdDev(handles.fwSample);
-    spectrum.forwardRefStdDev = calcStdDev(handles.fwRef);
-    spectrum.backwardSampleStdDev = calcStdDev(handles.bwSample);
-    spectrum.backwardRefStdDev = calcStdDev(handles.bwRef);
+    name = char(get(handles.editSpectrumName,'String'));
+    saveSpectrumToWS(hObject,eventdata,handles,name);
     
-    assignin('base',char(get(handles.editSpectrumName,'String')),spectrum);
-
-    guidata(hObject, handles);
-
 
 % --- Executes on button press in checkboxComplexConj.
 function checkboxComplexConj_Callback(hObject, eventdata, handles)
