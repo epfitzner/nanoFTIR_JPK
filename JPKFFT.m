@@ -34,7 +34,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %cutoff:1-cutoff
     IFavg = (abs(mean(IF_,1)));
 
-    if true
+    if false
         %Find center burst from regular maximum searching
         [~, maxIdx] = max(abs(IFavg(round(size(IFavg,2)*cutoff):round(size(IFavg(1,:),2)*(1-cutoff)))-mean(IFavg)));
         maxIdx = maxIdx(1,1)+round(size(IFavg,2)*cutoff);
@@ -50,7 +50,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         
         %Decide for Apodization type
     
-        if true
+        if false
             %Blackman-Harris apodization
             w = blackmanharrisApodization(length,4);
             
@@ -62,8 +62,8 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
             w = [linspace(0,1,length/2) linspace(1,0,length/2)];%ones(1,length);
             
             %Phasecorrection
-            wPC = [linspace(0,1,length/64) linspace(1,0,length/64)];
-            wPC = [zeros(1,length*31/64) wPC zeros(1,length*31/64)];
+            wPC = [linspace(0,1,length/32) linspace(1,0,length/32)];
+            wPC = [zeros(1,length*15/32) wPC zeros(1,length*15/32)];
         end
         
         IF(i,:) = IF(i,:).*w;   
@@ -80,7 +80,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
 %Shift Interferogram maximum to first point in array
     IF = circshift(IF,-(round(length/2))+1,2);
     IFPC = circshift(IFPC,-(round(length/2))+1,2);   
-
+    
 %FFT
     FFT = fft(IF,[],2);   
     FFTPC = fft(IFPC,[],2);
@@ -98,11 +98,14 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         switch mode
             case 2
                 %IF(:,end-length+1:end) = zeros(size(IF,1),length);
-                IF(:,end-length+2:end) = fliplr(IFPC(:,2:length));
+                IF(:,end-length+2:end) = IFPC(:,end-length+2:end);
+                %IF(:,end-length+2:end) = fliplr(IFPC(:,2:length));
             case 3
                 %IF(:,1:length) = zeros(size(IF,1),length);
-                IF(:,2:length) = fliplr(IFPC(:,end-length+2:end));
+                IF(:,2:length) = IFPC(:,2:length);
+                %IF(:,2:length) = fliplr(IFPC(:,end-length+2:end));
         end
+        
         FFT = fft(IF,[],2);
     end
 
