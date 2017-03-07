@@ -6,13 +6,13 @@ function [results,gof] = fitComplexLorentzian(wn,data,par0)
     %par0(1,1:m-1): Amplitude of Lorentzian
     %par0(2,1:m-1): Frequency of Lorentzian
     %par0(3,1:m-1): gamma (Width of Lorentzian)
-    %par0(1:4,m):   defines a complex polynomial first order
+    %par0(1:4,m):   defines a complex slope
     %y = par0(1,m)+1i*par0(2,m) + (par0(3,m)+1i*par0(4,m))*x;
     
     m = size(par0,2)-1;
 
-    Re = @(par) real(par(1)./((par(2).^2-wn.^2)-1i.*par(3).*wn));
-    Im = @(par) imag(par(1)./((par(2).^2-wn.^2)-1i.*par(3).*wn));
+    Re = @(par) real(par(1).*par(2).*par(3)./((par(2).^2-wn.^2)-1i.*par(3).*wn));
+    Im = @(par) imag(par(1).*par(2).*par(3)./((par(2).^2-wn.^2)-1i.*par(3).*wn));
 
     slope = @(par) (par(1)+1i.*par(2)) + (par(3)+1i.*par(4)).*wn;
     
@@ -28,7 +28,7 @@ function [results,gof] = fitComplexLorentzian(wn,data,par0)
             fitted = fitted + Re(par(:,i))+1i.*Im(par(:,i));
         end          
          
-        %Add the complex first-order polynomial
+        %Add the complex slope
         fitted = fitted + slope(par(:,m+1));
         
         %Calculate the rmse
@@ -56,8 +56,11 @@ function [results,gof] = fitComplexLorentzian(wn,data,par0)
         %Plot individual Lorentzian contributions
         plot(wn,abs(Re(results(:,i)) + 1i.*Im(results(:,i))+slope(results(:,m+1))),'LineStyle','--')
     end
+    %Add the complex slope
+    resultLine = resultLine+slope(results(:,m+1));
+    
     %Plot compound Lorentzian amplitude
-    plot(wn,abs(resultLine+slope(results(:,m+1))),'color','r')
+    plot(wn,abs(resultLine),'color','r')
     xlabel 'Wavenumber [cm^{-1}]'
     ylabel '|s_n|'
     
@@ -67,13 +70,35 @@ function [results,gof] = fitComplexLorentzian(wn,data,par0)
     hold on
     for i = 1:size(par0,2)
         %Plot individual Lorentzian contributions
-        plot(wn,Im(results(:,i) + imag(slope(results(:,m+1))),'LineStyle','--')
+        plot(wn,imag(Re(results(:,i))+1i.*Im(results(:,i)) + slope(results(:,m+1))),'LineStyle','--')
     end
     %Plot compound Lorentzian imaginary part
-    plot(wn,imag(resultLine+slope(results(:,m+1))),'color','r')
+    plot(wn,imag(resultLine),'color','r')
     xlabel 'Wavenumber [cm^{-1}]'
     ylabel 'Im\{s_n\}'
     
+    %Calculate standard error. See:
+    %
+    %https://de.mathworks.com/matlabcentral/newsreader/view_thread/157530
+    %
+    
+    % degrees of freedom in the problem
+    dof = numel(data) - numel(par0);
+
+    % standard deviation of the residuals
+    sdr = sqrt(sum(abs(data - resultLine).^2)/dof);
+
+    % jacobian matrix
+    [~, ~, ~, ~, ~, ~, J] = lsqnonlin(err, results,[],[], optimset('MaxIter', 0));
+
+    % I'll be lazy here, and use inv. Please, no flames,
+    % if you want a better approach, look in my tips and
+    % tricks doc.
+    Sigma = sdr^2*inv(J'*J);
+
+    % Parameter standard errors
+    se = sqrt(diag(Sigma))';
+    gof.se = se;
     
     gof.rmse = 0;
 end
