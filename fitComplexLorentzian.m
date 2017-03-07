@@ -77,28 +77,31 @@ function [results,gof] = fitComplexLorentzian(wn,data,par0)
     xlabel 'Wavenumber [cm^{-1}]'
     ylabel 'Im\{s_n\}'
     
-    %Calculate standard error. See:
-    %
-    %https://de.mathworks.com/matlabcentral/newsreader/view_thread/157530
-    %
     
-    % degrees of freedom in the problem
-    dof = numel(data) - numel(par0);
+    if false
+        %Calculate standard error. See:
+        %
+        %https://de.mathworks.com/matlabcentral/newsreader/view_thread/157530
+        %
 
-    % standard deviation of the residuals
-    sdr = sqrt(sum(abs(data - resultLine).^2)/dof);
+        % degrees of freedom in the problem
+        dof = numel(data) - numel(par0);
 
-    % jacobian matrix
-    [~, ~, ~, ~, ~, ~, J] = lsqnonlin(err, results,[],[], optimset('MaxIter', 0));
+        % standard deviation of the residuals
+        sdr = sqrt(sum(abs(data - resultLine).^2)/dof);
 
-    % I'll be lazy here, and use inv. Please, no flames,
-    % if you want a better approach, look in my tips and
-    % tricks doc.
-    Sigma = sdr^2*inv(J'*J);
+        % jacobian matrix
+        [~, ~, ~, ~, ~, ~, J] = lsqnonlin(err, results,[],[], optimset('MaxIter', 0));
 
-    % Parameter standard errors
-    se = sqrt(diag(Sigma))';
-    gof.se = se;
+        % I'll be lazy here, and use inv. Please, no flames,
+        % if you want a better approach, look in my tips and
+        % tricks doc.
+        Sigma = sdr^2*inv(J'*J);
+
+        % Parameter standard errors
+        se = sqrt(diag(Sigma))';
+        gof.se = se;
+    end
     
     gof.rmse = 0;
 end
