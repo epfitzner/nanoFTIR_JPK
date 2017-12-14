@@ -50,33 +50,52 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         
         %Decide for Apodization type
     
-        if false
+        pcFactor = 32;
+        
+        PC = 2;
+        
+        switch PC
+            
+            case 1
             %Blackman-Harris apodization
             w = blackmanharrisApodization(length,4);
-            
+
             %Phasecorrection
-            wPC = blackmanharrisApodization(length/16,4);
-            wPC = [zeros(1,length*15/32) wPC zeros(1,length*15/32)];
-        else
+            wPC = blackmanharrisApodization(length/pcFactor,4);
+            wPC = [zeros(1,length*(pcFactor-1)/(2*pcFactor)) wPC zeros(1,length*(pcFactor-1)/(2*pcFactor))];
+            
+            IFPC(i,:) = IF(i,:).*wPC;
+            case 2
             %Triangle apodization
             w = [linspace(0,1,length/2) linspace(1,0,length/2)];%ones(1,length);
-            
+
             %Phasecorrection
-            wPC = [linspace(0,1,length/32) linspace(1,0,length/32)];
-            wPC = [zeros(1,length*15/32) wPC zeros(1,length*15/32)];
+            pcFactor = pcFactor*2;
+            wPC = [linspace(0,1,length/pcFactor) linspace(1,0,length/pcFactor)];
+            wPC = [zeros(1,length*(pcFactor/2-1)/pcFactor) wPC zeros(1,length*(pcFactor/2-1)/pcFactor)];
+            
+            IFPC(i,:) = IF(i,:).*wPC;
+            case 3
+            %Bspline fitting of phase
+            %Interferogram gets Blackman-Harris-apodization
+            w = blackmanharrisApodization(length,4);
+    
+            temp = fft(fftshift(IF(i,:).*w));
+            
+            idx = abs(temp)>0.1*max(abs(temp));
+            
+            BspPC = ones(size(temp));
+            BspPC(idx) = exp(1i.*smooth(angle(temp(idx)),100,'sgolay',3));
+            IFPC(i,:) = ifft(BspPC);
         end
         
-        IF(i,:) = IF(i,:).*w;   
-        
-        IFPC(i,:) = IF(i,:).*wPC;
+        IF(i,:) = IF(i,:).*w;           
     end
-    
     
 %Zerofilling Interferogram
     IF = [IF zeros(size(IF,1),length*(zerofilling-1))];
     IFPC = [IFPC zeros(size(IFPC,1),length*(zerofilling-1))];
-    
-    
+      
 %Shift Interferogram maximum to first point in array
     IF = circshift(IF,-(round(length/2))+1,2);
     IFPC = circshift(IFPC,-(round(length/2))+1,2);   
@@ -109,6 +128,34 @@ function [FFT,wn,IF] = JPKFFT(IF_, length, zerofilling, cutoff, checkAlignment, 
         FFT = fft(IF,[],2);
     end
 
+    %Substract linear phase baseline
+    phaseBaseline = false;
+    
+    if phaseBaseline
+        for i = 1:size(FFT,1)
+            idx = abs(FFT(i,:)) > 0.1 * max(abs(FFT(i,:)));
+            idxRight = idx;
+            idxLeft = idx;
+            idxRight(1:floor(end/2)) = 0;
+            idxLeft(ceil(end/2):end) = 0;
+            
+            bl = ones(size(FFT(i,:)));
+            
+            tempX = linspace(0,size(FFT,2)-1,size(FFT,2));
+            
+            fitLeft = fit(tempX(idxLeft)',angle(FFT(i,idxLeft))','poly1');
+            fitRight = fit(tempX(idxRight)',angle(FFT(i,idxRight))','poly1');
+            
+            bl(idxLeft) = exp(-1i.*(fitLeft.p1+fitLeft.p2.*tempX(idxLeft)));
+            bl(idxRight) = exp(-1i.*(fitRight.p1+fitRight.p2.*tempX(idxRight)));
+            
+            FFT(i,:) = FFT(i,:).*bl;
+        end
+        
+        figure
+        plot(angle(FFT)')
+    end
+    
     %Check alignement of spectra optically
     if checkAlignment
         scrsz = get(groot,'ScreenSize');

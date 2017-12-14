@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 03-Feb-2017 20:21:37
+% Last Modified by GUIDE v2.5 06-Mar-2017 12:19:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -95,9 +95,6 @@ if filename==0
     return
 end
 
-%Load complex forward and backward interferograms.
-[IFfw, IFbw] = loadJPKspectra([path filename]);
-
 %Get number of points for FFT from the text edit editNumPointsFFT
 n = str2double(get(handles.editNumPointsFFT,'string'));
 
@@ -113,6 +110,20 @@ phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 %Get zerofilling-factor
 zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
+%Get File type
+isBinary = false;
+
+%Which harmonic to load
+harm = str2double(get(handles.editHarmonic,'string'));
+
+if isBinary
+    data = readLabviewData([path filename],4,'double',true);
+    IFfw = reshape(data(harm,1,:,:),[size(data,3) size(data,4)]);
+    IFbw = reshape(data(harm,2,:,:),[size(data,3) size(data,4)]);
+else
+    [IFfw, IFbw] = loadJPKspectra([path filename]);
+end
+        
 [fwRef,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
 [bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
 
@@ -251,31 +262,69 @@ phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 %Get zerofilling-factor
 zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
+%Get File type
+isBinary = false;
+
+%Which harmonic to load
+harm = str2double(get(handles.editHarmonic,'string'));
+
 if iscell(filename)
     for i = 1:size(filename,2)
         %Load complex forward and backward interferograms.
-        [IFfw, IFbw] = loadJPKspectra([path filename{i}]);
+        if isBinary
+            data = readLabviewData([path filename{i}],4,'double',true);
+            
 
-        %Execute Zerofilling, alignment, Phasecorrection and FFT
-        [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
-        [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+            IFfw = reshape(data(harm,1,:,:),[size(data,3) size(data,4)]);
+            IFbw = reshape(data(harm,2,:,:),[size(data,3) size(data,4)]);
 
-        handles.fwSample = fwSample;
-        handles.bwSample = bwSample;
-        handles.wn = wn;
-        %Check if filename is a valid variable name
-        if ~isvarname(filename{i})
-           name = 'XXX';
+            %Execute Zerofilling, alignment, Phasecorrection and FFT
+            [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+            [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+
+            handles.fwSample = fwSample;
+            handles.bwSample = bwSample;
+            handles.wn = wn;
+            %Check if filename is a valid variable name
+            if ~isvarname(filename{i})
+                name = [matlab.lang.makeValidName(filename{i}) '_harm' num2str(harm)];
+            else
+                name = [filename{i} '_harm' num2str(harm)];
+            end
+
+            %Save to Workspace if more than one file loaded
+            saveSpectrumToWS(hObject,eventdata,handles,name);
+
         else
-            name = filename{i};
+            [IFfw, IFbw] = loadJPKspectra([path filename{i}]);
+
+            %Execute Zerofilling, alignment, Phasecorrection and FFT
+            [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+            [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+
+            handles.fwSample = fwSample;
+            handles.bwSample = bwSample;
+            handles.wn = wn;
+            %Check if filename is a valid variable name
+            if ~isvarname(filename{i})
+                name = matlab.lang.makeValidName(filename{i});
+            else
+                name = filename{i};
+            end
+
+            %Save to Workspace if more than one file loaded
+            saveSpectrumToWS(hObject,eventdata,handles,name);
         end
-        
-        %Save to Workspace if more than one file loaded
-        saveSpectrumToWS(hObject,eventdata,handles,name);
     end
 else
     %Load complex forward and backward interferograms.
-    [IFfw, IFbw] = loadJPKspectra([path filename]);
+    if isBinary
+        data = readLabviewData([path filename],4,'double',true);
+        IFfw = reshape(data(harm,1,:,:),[size(data,3) size(data,4)]);
+        IFbw = reshape(data(harm,2,:,:),[size(data,3) size(data,4)]);
+    else
+        [IFfw, IFbw] = loadJPKspectra([path filename]);
+    end
 
     %Execute Zerofilling, alignment, Phasecorrection and FFT
     [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
@@ -508,3 +557,25 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+
+
+function editHarmonic_Callback(hObject, eventdata, handles)
+% hObject    handle to editHarmonic (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of editHarmonic as text
+%        str2double(get(hObject,'String')) returns contents of editHarmonic as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function editHarmonic_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editHarmonic (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
