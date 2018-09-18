@@ -33,8 +33,8 @@ function imagescHyp( fw , bw , wnDisp , wn , refIdx )
         figure;
         
         ax3 = subplot(1,2,1);
-        contourf(abs((bw+fw)./(bwRef+fwRef))',linspace(0.01,1,20),'LineColor', 'none','EdgeColor','none' )   
-        %imagesc(abs((bw+fw)./(bwRef+fwRef))');
+        %contourf(abs((bw+fw)./(bwRef+fwRef))',linspace(0.2,1,20),'LineColor', 'none','EdgeColor','none' )   
+        imagesc(abs((bw+fw)./(bwRef+fwRef))');
         colormap(ax3,hot)
         h = colorbar;
         set(gca,'YDir','normal')
@@ -42,9 +42,9 @@ function imagescHyp( fw , bw , wnDisp , wn , refIdx )
         set(get(h,'title'),'string','|{s_n}^{Avg}| [a.u.]');
 
         ax4 = subplot(1,2,2);
-        phiLim = [-0.1 0.3];
-        contourf(angle((bw+fw)./(bwRef+fwRef))',linspace(phiLim(1),phiLim(2),20),'LineColor', 'none' )
-        %imagesc(angle((bw+fw)./(bwRef+fwRef))');
+        phiLim = [0.0 0.5];
+        %contourf(angle((bw+fw)./(bwRef+fwRef))',linspace(phiLim(1),phiLim(2),20),'LineColor', 'none' )
+        imagesc(angle((bw+fw)./(bwRef+fwRef))');
         colormap(ax4,jet)
         h = colorbar;
         set(gca,'YDir','normal','CLim',phiLim)

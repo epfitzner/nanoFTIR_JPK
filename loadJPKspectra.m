@@ -7,7 +7,7 @@ function [ IFfw, IFbw ] = loadJPKspectra(filename)
     
     data = importdata(filename);
     
-    n = round(size(data,1)/4);
+    n = floor(size(data,1)/4);
     length = size(data,2);
     %Placeholder for the to be created interferograms.
     IFfw = zeros(n,length);

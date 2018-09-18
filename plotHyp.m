@@ -25,17 +25,22 @@ function plotHyp( fw , bw , x , y , wn , refIdx )
         
     ax1 = subplot(2,1,1);
     
-    fwSpect = abs(mean(complexConjugateAvg(fw,2))./mean(complexConjugateAvg(fwRef,2)));
-    bwSpect = abs(mean(complexConjugateAvg(bw,2))./mean(complexConjugateAvg(bwRef,2)));
+    if size(fw,1)>1
+        fwSpect = abs(mean(fw)./mean(fwRef));
+        bwSpect = abs(mean(bw)./mean(bwRef));
+    else
+        fwSpect = abs(fw./fwRef);
+        bwSpect = abs(bw./bwRef);
+    end
             
-    [~,fwS,fwP] = calcStdDev(complexConjugateAvg(fw,2),complexConjugateAvg(fwRef,2));
-    [~,bwS,bwP] = calcStdDev(complexConjugateAvg(bw,2),complexConjugateAvg(bwRef,2));
+    [~,fwS,fwP] = calcStdDev(fw,fwRef);
+    [~,bwS,bwP] = calcStdDev(bw,bwRef);
     
     h = plot(wn,fwSpect,wn,bwSpect);
 
-    patch([wn fliplr(wn) wn(1)], [fwSpect-fwS fliplr(fwSpect+fwS) fwSpect(1)-fwS(1)],'b','EdgeColor','none','FaceAlpha',0.1)
-    patch([wn fliplr(wn) wn(1)], [bwSpect-bwS fliplr(bwSpect+bwS) bwSpect(1)-bwS(1)],'r','EdgeColor','none','FaceAlpha',0.1)
-    uistack(h,'top');
+    %patch([wn fliplr(wn) wn(1)], [fwSpect-fwS fliplr(fwSpect+fwS) fwSpect(1)-fwS(1)],'b','EdgeColor','none','FaceAlpha',0.1)
+    %patch([wn fliplr(wn) wn(1)], [bwSpect-bwS fliplr(bwSpect+bwS) bwSpect(1)-bwS(1)],'r','EdgeColor','none','FaceAlpha',0.1)
+    %uistack(h,'top');
     ylabel '|s_n / {s_n}^{ref}|'
     xlabel 'Wavenumber [cm^{-1}]'
     set(gca,'XDir','rev')
@@ -44,14 +49,19 @@ function plotHyp( fw , bw , x , y , wn , refIdx )
     
     ax2 = subplot(2,1,2);
     
-    fwSpect = angle(mean(complexConjugateAvg(fw,2))./mean(complexConjugateAvg(fwRef,2)));
-    bwSpect = angle(mean(complexConjugateAvg(bw,2))./mean(complexConjugateAvg(bwRef,2)));
-    
+    if size(fw,1)>1
+        fwSpect = angle(mean(fw)./mean(fwRef));
+        bwSpect = angle(mean(bw)./mean(bwRef));
+    else
+        fwSpect = angle(fw./fwRef);
+        bwSpect = angle(bw./bwRef);
+    end
+
     h = plot(wn,fwSpect*180/pi,wn,bwSpect*180/pi);
-    patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)]*180/pi,'b','EdgeColor','none','FaceAlpha',0.1)
-    patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)]*180/pi,'r','EdgeColor','none','FaceAlpha',0.1)
-    uistack(h,'top')
-    ylabel '\phi_n - {\phi_n}^{ref} [°]'
+    %patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)]*180/pi,'b','EdgeColor','none','FaceAlpha',0.1)
+    %patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)]*180/pi,'r','EdgeColor','none','FaceAlpha',0.1)
+    %uistack(h,'top')
+    ylabel '\phi_n - {\phi_n}^{ref} [?]'
     xlabel 'Wavenumber [cm^{-1}]'
     set(gca,'XDir','rev')
     xlim([1400 1800]);

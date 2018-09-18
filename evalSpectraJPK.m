@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 06-Mar-2017 12:19:49
+% Last Modified by GUIDE v2.5 06-Aug-2018 17:18:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -111,7 +111,7 @@ phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
 %Get File type
-isBinary = false;
+isBinary = get(handles.checkboxLoadBinary,'value');
 
 %Which harmonic to load
 harm = str2double(get(handles.editHarmonic,'string'));
@@ -148,35 +148,73 @@ function pushbuttonPlotAmplitude_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-figure
+global colorCounter;
+colors = lines(64);
 
-wn = handles.wn;
+if get(handles.checkboxAppend,'value')
+    figure(1);
+    hold on
+    colorCounter = colorCounter+1;
+else
+    figure(1);
+    colorCounter = 1;
+end
+
+idx = get(handles.listbox2,'value');
+
+wn = handles.data(idx).wn;
+fwSample = handles.data(idx).fwSample;
+bwSample = handles.data(idx).bwSample;
+fwRef = handles.data(idx).fwRef;
+bwRef = handles.data(idx).bwRef;
 
 if get(handles.checkboxReferencePlot,'value')
     if get(handles.checkboxComplexConj,'value')
-        fwSpect = abs(mean(complexConjugateAvg(handles.fwSample,2))./mean(complexConjugateAvg(handles.fwRef,2)));
-        bwSpect = abs(mean(complexConjugateAvg(handles.bwSample,2))./mean(complexConjugateAvg(handles.bwRef,2)));
+        fwSpect = abs(mean(complexConjugateAvg(fwSample,2))./mean(complexConjugateAvg(fwRef,2)));
+        bwSpect = abs(mean(complexConjugateAvg(bwSample,2))./mean(complexConjugateAvg(bwRef,2)));
             
-        [~,fwS,~] = calcStdDev(complexConjugateAvg(handles.fwSample,2),complexConjugateAvg(handles.fwRef,2));
-        [~,bwS,~] = calcStdDev(complexConjugateAvg(handles.bwSample,2),complexConjugateAvg(handles.bwRef,2));
+        [~,fwS,~] = calcStdDev(complexConjugateAvg(fwSample,2),complexConjugateAvg(fwRef,2));
+        [~,bwS,~] = calcStdDev(complexConjugateAvg(bwSample,2),complexConjugateAvg(bwRef,2));
     else
-        fwSpect = abs(mean(handles.fwSample)./mean(handles.fwRef));
-        bwSpect = abs(mean(handles.bwSample)./mean(handles.bwRef));
+        fwSpect = abs(mean(fwSample)./mean(fwRef));
+        bwSpect = abs(mean(bwSample)./mean(bwRef));
             
-        [~,fwS,~] = calcStdDev(handles.fwSample,handles.fwRef);
-        [~,bwS,~] = calcStdDev(handles.bwSample,handles.bwRef);
+        [~,fwS,~] = calcStdDev(fwSample,fwRef);
+        [~,bwS,~] = calcStdDev(bwSample,bwRef);
     end
-    h = plot(wn,fwSpect,wn,bwSpect);
+    
+    if get(handles.checkboxAvgForwBackw,'value')
+        spec = (fwSpect+bwSpect)./2;
+        h = plot(wn,spec,'color',colors(colorCounter,:));
+        S = (fwS+bwS)./2;
+        
+        patch([wn fliplr(wn) wn(1)], [spec-S fliplr(spec+S) spec(1)-S(1)],colors(colorCounter,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        uistack(h,'top');
+    else    
+        h = plot(wn,fwSpect,'color',colors(colorCounter,:));
+        hold on
+        plot(wn,bwSpect,'color',colors(colorCounter+1,:));
 
-    patch([wn fliplr(wn) wn(1)], [fwSpect-fwS fliplr(fwSpect+fwS) fwSpect(1)-fwS(1)],'b','EdgeColor','none','FaceAlpha',0.1)
-    patch([wn fliplr(wn) wn(1)], [bwSpect-bwS fliplr(bwSpect+bwS) bwSpect(1)-bwS(1)],'r','EdgeColor','none','FaceAlpha',0.1)
-    uistack(h,'top');
+        patch([wn fliplr(wn) wn(1)], [fwSpect-fwS fliplr(fwSpect+fwS) fwSpect(1)-fwS(1)],colors(colorCounter,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        patch([wn fliplr(wn) wn(1)], [bwSpect-bwS fliplr(bwSpect+bwS) bwSpect(1)-bwS(1)],colors(colorCounter+1,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        uistack(h,'top');
+        hold off
+        colorCounter = colorCounter+1;
+    end
     ylabel '|s_n / {s_n}^{ref}|'
 else
     if get(handles.checkboxComplexConj,'value')
-        plot(wn,abs(mean(complexConjugateAvg(handles.fwSample,2))),wn,abs(mean(complexConjugateAvg(handles.fwRef,2))),wn,abs(mean(complexConjugateAvg(handles.bwSample,2))),wn,abs(mean(complexConjugateAvg(handles.bwRef,2))))
+        if get(handles.checkboxAvgForwBackw,'value')
+            plot(wn,(abs(mean(complexConjugateAvg(fwSample,2)))+abs(mean(complexConjugateAvg(bwSample,2))))./2,wn,(abs(mean(complexConjugateAvg(fwRef,2)))+abs(mean(complexConjugateAvg(bwRef,2))))./2)
+        else
+            plot(wn,abs(mean(complexConjugateAvg(fwSample,2))),wn,abs(mean(complexConjugateAvg(fwRef,2))),wn,abs(mean(complexConjugateAvg(bwSample,2))),wn,abs(mean(complexConjugateAvg(bwRef,2))))
+        end
     else
-        plot(wn,abs(mean(handles.fwSample)),wn,abs(mean(handles.fwRef)),wn,abs(mean(handles.bwSample)),wn,abs(mean(handles.bwRef)))
+        if get(handles.checkboxAvgForwBackw,'value')
+            plot(wn,(abs(mean(fwSample))+abs(mean(bwSample)))./2,wn,(abs(mean(fwRef))+abs(mean(bwRef)))./2)
+        else
+            plot(wn,abs(mean(fwSample)),wn,abs(mean(fwRef)),wn,abs(mean(bwSample)),wn,abs(mean(bwRef)))
+        end
     end
     
     ylabel '|s_n| [V]'
@@ -184,43 +222,82 @@ end
 
 xlabel 'Wavenumber [cm^{-1}]'
 set(gca,'XDir','rev')
-xlim([1300 2000]);
+xlim([1100 2100]);
 
 % --- Executes on button press in pushbuttonPlotPhase.
 function pushbuttonPlotPhase_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbuttonPlotPhase (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-figure
 
-wn = handles.wn;
+global colorCounter;
+colors = lines(64);
+
+if get(handles.checkboxAppend,'value')
+    figure(3);
+    hold on
+    colorCounter = colorCounter+1;
+else
+    figure(3);
+    colorCounter = 1;
+end
+
+idx = get(handles.listbox2,'value');
+
+wn = handles.data(idx).wn;
+fwSample = handles.data(idx).fwSample;
+bwSample = handles.data(idx).bwSample;
+fwRef = handles.data(idx).fwRef;
+bwRef = handles.data(idx).bwRef;
 
 if get(handles.checkboxReferencePlot,'value')
     if get(handles.checkboxComplexConj,'value')
-        fwSpect = angle(mean(complexConjugateAvg(handles.fwSample,2))./mean(complexConjugateAvg(handles.fwRef,2)));
-        bwSpect = angle(mean(complexConjugateAvg(handles.bwSample,2))./mean(complexConjugateAvg(handles.bwRef,2)));
+        fwSpect = angle(mean(complexConjugateAvg(fwSample,2))./mean(complexConjugateAvg(fwRef,2)));
+        bwSpect = angle(mean(complexConjugateAvg(bwSample,2))./mean(complexConjugateAvg(bwRef,2)));
             
-        [~,~,fwP] = calcStdDev(complexConjugateAvg(handles.fwSample,2),complexConjugateAvg(handles.fwRef,2));
-        [~,~,bwP] = calcStdDev(complexConjugateAvg(handles.bwSample,2),complexConjugateAvg(handles.bwRef,2));
+        [~,~,fwP] = calcStdDev(complexConjugateAvg(fwSample,2),complexConjugateAvg(fwRef,2));
+        [~,~,bwP] = calcStdDev(complexConjugateAvg(bwSample,2),complexConjugateAvg(bwRef,2));
     else
-        fwSpect = angle(mean(handles.fwSample)./mean(handles.fwRef));
-        bwSpect = angle(mean(handles.bwSample)./mean(handles.bwRef));
+        fwSpect = angle(mean(fwSample)./mean(fwRef));
+        bwSpect = angle(mean(bwSample)./mean(bwRef));
     
-        [~,~,fwP] = calcStdDev(handles.fwSample,handles.fwRef);
-        [~,~,bwP] = calcStdDev(handles.bwSample,handles.bwRef);
+        [~,~,fwP] = calcStdDev(fwSample,fwRef);
+        [~,~,bwP] = calcStdDev(bwSample,bwRef);
     end
     
+    if get(handles.checkboxAvgForwBackw,'value')
+        spec = (fwSpect+bwSpect)./2;
+        h = plot(wn,spec,'color',colors(colorCounter,:));
+        P = (fwP+bwP)./2;
+        
+        patch([wn fliplr(wn) wn(1)], [spec-P fliplr(spec+P) spec(1)-P(1)],colors(colorCounter,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        uistack(h,'top');
+    else    
+        h = plot(wn,fwSpect,'color',colors(colorCounter,:));
+        hold on
+        plot(wn,bwSpect,'color',colors(colorCounter+1,:));
+
+        patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)],colors(colorCounter,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)],colors(colorCounter+1,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        uistack(h,'top');
+        hold off
+        colorCounter = colorCounter+1;
+    end
     
-    h = plot(wn,fwSpect*180/pi,wn,bwSpect*180/pi);
-    patch([wn fliplr(wn) wn(1)], [fwSpect-fwP fliplr(fwSpect+fwP) fwSpect(1)-fwP(1)]*180/pi,'b','EdgeColor','none','FaceAlpha',0.1)
-    patch([wn fliplr(wn) wn(1)], [bwSpect-bwP fliplr(bwSpect+bwP) bwSpect(1)-bwP(1)]*180/pi,'r','EdgeColor','none','FaceAlpha',0.1)
-    uistack(h,'top')
-    ylabel '\phi_n - {\phi_n}^{ref} [°]'
+    ylabel '\phi_n - {\phi_n}^{ref} [rad]'
 else
     if get(handles.checkboxComplexConj,'value')
-        plot(wn,angle(mean(complexConjugateAvg(handles.fwSample,2))),wn,angle(mean(complexConjugateAvg(handles.fwRef,2))),wn,angle(mean(complexConjugateAvg(handles.bwSample,2))),wn,angle(mean(complexConjugateAvg(handles.bwRef,2))))
+        if get(handles.checkboxAvgForwBackw,'value')
+            plot(wn,angle(mean(complexConjugateAvg(fwSample,2))+mean(complexConjugateAvg(bwSample,2))),wn,angle(mean(complexConjugateAvg(fwRef,2))+mean(complexConjugateAvg(bwRef,2))))
+        else
+            plot(wn,angle(mean(complexConjugateAvg(fwSample,2))),wn,angle(mean(complexConjugateAvg(fwRef,2))),wn,angle(mean(complexConjugateAvg(bwSample,2))),wn,angle(mean(complexConjugateAvg(bwRef,2))))
+        end
     else
-        plot(wn,angle(mean(handles.fwSample)),wn,angle(mean(handles.fwRef)),wn,angle(mean(handles.bwSample)),wn,angle(mean(handles.bwRef)))
+        if get(handles.checkboxAvgForwBackw,'value')
+            plot(wn,angle(mean(fwSample)+mean(bwSample)),wn,angle(mean(fwRef)+mean(bwRef)))
+        else
+            plot(wn,angle(mean(fwSample)),wn,angle(mean(fwRef)),wn,angle(mean(bwSample)),wn,angle(mean(bwRef)))
+        end
     end
     
     ylabel '\phi_n [rad]'
@@ -228,7 +305,7 @@ end
 
 xlabel 'Wavenumber [cm^{-1}]'
 set(gca,'XDir','rev')
-xlim([1300 2000]);
+xlim([1100 2100]);
 
 % --- Executes on button press in pushbuttonLoadSample.
 function pushbuttonLoadSample_Callback(hObject, eventdata, handles)
@@ -263,7 +340,7 @@ phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 zerofilling = str2double(get(handles.editZeroFilling,'string'));
 
 %Get File type
-isBinary = false;
+isBinary = get(handles.checkboxLoadBinary,'value');
 
 %Which harmonic to load
 harm = str2double(get(handles.editHarmonic,'string'));
@@ -284,7 +361,12 @@ if iscell(filename)
 
             handles.fwSample = fwSample;
             handles.bwSample = bwSample;
+            handles.IFfwSample = IFfw;
+            handles.IFbwSample = IFbw;
             handles.wn = wn;
+            
+            guidata(hObject, handles);
+            
             %Check if filename is a valid variable name
             if ~isvarname(filename{i})
                 name = [matlab.lang.makeValidName(filename{i}) '_harm' num2str(harm)];
@@ -293,7 +375,7 @@ if iscell(filename)
             end
 
             %Save to Workspace if more than one file loaded
-            saveSpectrumToWS(hObject,eventdata,handles,name);
+            [hObject,handles] = saveSpectrumToWS(hObject,eventdata,handles,name);
 
         else
             [IFfw, IFbw] = loadJPKspectra([path filename{i}]);
@@ -304,7 +386,12 @@ if iscell(filename)
 
             handles.fwSample = fwSample;
             handles.bwSample = bwSample;
+            handles.IFfwSample = IFfw;
+            handles.IFbwSample = IFbw;
             handles.wn = wn;
+            
+            guidata(hObject, handles);
+            
             %Check if filename is a valid variable name
             if ~isvarname(filename{i})
                 name = matlab.lang.makeValidName(filename{i});
@@ -313,7 +400,7 @@ if iscell(filename)
             end
 
             %Save to Workspace if more than one file loaded
-            saveSpectrumToWS(hObject,eventdata,handles,name);
+            [hObject,handles] = saveSpectrumToWS(hObject,eventdata,handles,name);
         end
     end
 else
@@ -329,6 +416,24 @@ else
     %Execute Zerofilling, alignment, Phasecorrection and FFT
     [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
     [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+    
+    handles.fwSample = fwSample;
+    handles.bwSample = bwSample;
+    handles.IFfwSample = IFfw;
+    handles.IFbwSample = IFbw;
+    handles.wn = wn;
+            
+    guidata(hObject, handles);
+            
+    if ~isvarname(filename)
+        name = matlab.lang.makeValidName(filename);
+    else
+        name = filename;
+    end
+            
+    [hObject,handles] = saveSpectrumToWS(hObject,eventdata,handles,name);
+    
+    guidata(hObject, handles);
 end
     
 
@@ -420,37 +525,76 @@ function pushbuttonPlotImag_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbuttonPlotImag (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-figure
 
-wn = handles.wn;
+global colorCounter
+colors = lines(64);
+
+if get(handles.checkboxAppend,'value')
+    figure(2);
+    hold on
+    colorCounter = colorCounter+1;
+else
+    figure(2);
+    colorCounter = 1;
+end
+
+idx = get(handles.listbox2,'value');
+
+wn = handles.data(idx).wn;
+fwSample = handles.data(idx).fwSample;
+bwSample = handles.data(idx).bwSample;
+fwRef = handles.data(idx).fwRef;
+bwRef = handles.data(idx).bwRef;
 
 if get(handles.checkboxReferencePlot,'value')
     if get(handles.checkboxComplexConj,'value')
-        fwSpect = imag(mean(complexConjugateAvg(handles.fwSample,2))./mean(complexConjugateAvg(handles.fwRef,2)));
-        bwSpect = imag(mean(complexConjugateAvg(handles.bwSample,2))./mean(complexConjugateAvg(handles.bwRef,2)));
+        fwSpect = imag(mean(complexConjugateAvg(fwSample,2))./mean(complexConjugateAvg(fwRef,2)));
+        bwSpect = imag(mean(complexConjugateAvg(bwSample,2))./mean(complexConjugateAvg(bwRef,2)));
             
-        [fwI,~,~] = calcStdDev(complexConjugateAvg(handles.fwSample,2),complexConjugateAvg(handles.fwRef,2));
-        [bwI,~,~] = calcStdDev(complexConjugateAvg(handles.bwSample,2),complexConjugateAvg(handles.bwRef,2));
+        [fwI,~,~] = calcStdDev(complexConjugateAvg(fwSample,2),complexConjugateAvg(fwRef,2));
+        [bwI,~,~] = calcStdDev(complexConjugateAvg(bwSample,2),complexConjugateAvg(bwRef,2));
     else
-        fwSpect = imag(mean(handles.fwSample)./mean(handles.fwRef));
-        bwSpect = imag(mean(handles.bwSample)./mean(handles.bwRef));
+        fwSpect = imag(mean(fwSample)./mean(fwRef));
+        bwSpect = imag(mean(bwSample)./mean(bwRef));
     
-        [fwI,~,~] = calcStdDev(handles.fwSample,handles.fwRef);
-        [bwI,~,~] = calcStdDev(handles.bwSample,handles.bwRef);
+        [fwI,~,~] = calcStdDev(fwSample,fwRef);
+        [bwI,~,~] = calcStdDev(bwSample,bwRef);
     end
     
-    h = plot(wn,fwSpect,wn,bwSpect);
-    fwI = imag(fwI);
-    bwI = imag(bwI);
-    patch([wn fliplr(wn) wn(1)], [fwSpect-fwI fliplr(fwSpect+fwI) fwSpect(1)-fwI(1)],'b','EdgeColor','none','FaceAlpha',0.1)
-    patch([wn fliplr(wn) wn(1)], [bwSpect-bwI fliplr(bwSpect+bwI) bwSpect(1)-bwI(1)],'r','EdgeColor','none','FaceAlpha',0.1)
-    uistack(h,'top');
+    if get(handles.checkboxAvgForwBackw,'value')
+        S = (fwSpect+bwSpect)./2;
+        h = plot(wn,S,'color',colors(colorCounter,:));
+        I = imag((fwI+bwI)./2);
+        patch([wn fliplr(wn) wn(1)], [S-I fliplr(S+I) S(1)-I(1)],colors(colorCounter,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        uistack(h,'top');
+    else
+        h = plot(wn,fwSpect,'color',colors(colorCounter,:));
+        hold on
+        plot(wn,bwSpect,'color',colors(colorCounter+1,:));
+        fwI = imag(fwI);
+        bwI = imag(bwI);
+        patch([wn fliplr(wn) wn(1)], [fwSpect-fwI fliplr(fwSpect+fwI) fwSpect(1)-fwI(1)],colors(colorCounter,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        patch([wn fliplr(wn) wn(1)], [bwSpect-bwI fliplr(bwSpect+bwI) bwSpect(1)-bwI(1)],colors(colorCounter+1,:),'EdgeColor','none','FaceAlpha',0.1,'HandleVisibility','off')
+        uistack(h,'top');
+        hold off
+        colorCounter = colorCounter+1;
+    end
+    
     ylabel 'Im(s_n/{s_n}^{ref})'
+    
 else
     if get(handles.checkboxComplexConj,'value')
-        plot(wn,imag(mean(complexConjugateAvg(handles.fwSample,2))),wn,imag(mean(complexConjugateAvg(handles.fwRef,2))),wn,imag(mean(complexConjugateAvg(handles.bwSample,2))),wn,imag(mean(complexConjugateAvg(handles.bwRef,2))))
+        if get(handles.checkboxAvgForwBackw,'value')
+            plot(wn,imag((mean(complexConjugateAvg(fwSample,2))+mean(complexConjugateAvg(bwSample,2)))./2),wn,imag((mean(complexConjugateAvg(fwRef,2))+mean(complexConjugateAvg(bwRef,2)))./2))
+        else
+            plot(wn,imag(mean(complexConjugateAvg(fwSample,2))),wn,imag(mean(complexConjugateAvg(fwRef,2))),wn,imag(mean(complexConjugateAvg(bwSample,2))),wn,imag(mean(complexConjugateAvg(bwRef,2))))
+        end
     else
-        plot(wn,imag(mean(handles.fwSample)),wn,imag(mean(handles.fwRef)),wn,imag(mean(handles.bwSample)),wn,imag(mean(handles.bwRef)))
+        if get(handles.checkboxAvgForwBackw,'value')
+            plot(wn,imag((mean(fwSample)+mean(bwSample))./2),wn,imag((mean(fwRef)+mean(bwRef))./2))
+        else
+            plot(wn,imag(mean(fwSample)),wn,imag(mean(fwRef)),wn,imag(mean(bwSample)),wn,imag(mean(bwRef)))
+        end
     end
     
     ylabel 'Im(s_n) [V]'
@@ -458,7 +602,7 @@ end
 
 xlabel 'Wavenumber [cm^{-1}]'
 set(gca,'XDir','rev')
-xlim([1300 2000]);
+xlim([1100 2100]);
 
 
 
@@ -579,3 +723,32 @@ function editHarmonic_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in checkboxLoadBinary.
+function checkboxLoadBinary_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxLoadBinary (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxLoadBinary
+
+
+% --- Executes on button press in checkboxAvgForwBackw.
+function checkboxAvgForwBackw_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxAvgForwBackw (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxAvgForwBackw
+
+
+% --- Executes on button press in checkboxAppend.
+function checkboxAppend_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxAppend (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global colorCounter
+colorCounter = 0;
+% Hint: get(hObject,'Value') returns toggle state of checkboxAppend
