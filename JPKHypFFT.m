@@ -1,14 +1,19 @@
-function [ FFTHyp,wnHyp,IFHyp ] = JPKHypFFT( IFHyp_, length, zerofilling, cutoff, checkAlignment, mode, phaseCorrection )
+function [ FFTHyp,wnHyp,IFHyp ] = JPKHypFFT( IFHyp_, length, zerofilling, cutoff, checkAlignment, mode, phaseCorrection, singleSided )
 %JPKHYPFFT Summary of this function goes here
 %   Detailed explanation goes here
 
-    FFTHyp = zeros(size(IFHyp_,1),size(IFHyp_,2),size(IFHyp_,3),length*zerofilling);
-    IFHyp = zeros(size(IFHyp_,1),size(IFHyp_,2),size(IFHyp_,3),length*zerofilling);
-    
-    for i = 1:size(IFHyp_,1)
-        for j = 1:size(IFHyp_,2)
-            [ FFTHyp(i,j,:,:),wnHyp,IFHyp(i,j,:,:) ] =  JPKFFT(reshape(IFHyp_(i,j,:,:),[size(IFHyp_,3) size(IFHyp_,4)]), length, zerofilling, cutoff, checkAlignment, mode, phaseCorrection);
-        end
+    if singleSided
+        factor = 2;
+    else
+        factor = 1;
     end
+    
+    FFTHyp = zeros(size(IFHyp_,1),size(IFHyp_,2),size(IFHyp_,3),length*zerofilling*factor);
+    IFHyp = zeros(size(IFHyp_,1),size(IFHyp_,2),size(IFHyp_,3),length*zerofilling*factor);
+    
+    [TempFFTHyp,wnHyp,TempIFHyp] = JPKFFT(reshape(IFHyp_(:,:,:,:),[size(IFHyp_,1)*size(IFHyp_,2)*size(IFHyp_,3) size(IFHyp_,4)]), length, zerofilling, cutoff, checkAlignment, mode, phaseCorrection,singleSided);
+    FFTHyp = reshape(TempFFTHyp,size(FFTHyp));
+    IFHyp = reshape(TempIFHyp,size(IFHyp));
+
 end
 

@@ -42,14 +42,15 @@ function imagescHyp( fw , bw , wnDisp , wn , refIdx )
         set(get(h,'title'),'string','|{s_n}^{Avg}| [a.u.]');
 
         ax4 = subplot(1,2,2);
-        phiLim = [0.0 0.5];
+        phiLim = [-0.1 0.2];
         %contourf(angle((bw+fw)./(bwRef+fwRef))',linspace(phiLim(1),phiLim(2),20),'LineColor', 'none' )
         imagesc(angle((bw+fw)./(bwRef+fwRef))');
         colormap(ax4,jet)
         h = colorbar;
-        set(gca,'YDir','normal','CLim',phiLim)
+        set(gca,'YDir','normal')
+        set(gca,'CLim',phiLim)
         axis 'image'
-        set(get(h,'title'),'string','Arg\{{s_n}^{Avg}\} [rad]');
+        set(get(h,'title'),'string','nanoFTIR Abs\{{s_n}^{Avg}\}');
     else
         scrsz = get(groot,'ScreenSize');
         figure('Position',[scrsz(3)/6 scrsz(4)/6 scrsz(3)*4/6 scrsz(4)*5/6]);

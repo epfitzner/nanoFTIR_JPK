@@ -1,9 +1,17 @@
-function [FFT,wn,IF] = JPKFFT(IF_, L, zerofilling, cutoff, checkAlignment, mode, phaseCorrection)  
+function [FFT,wn,IF] = JPKFFT(IF_, L, zerofilling, cutoff, checkAlignment, mode, phaseCorrection,singleSided)  
     
+%Check if there is only one IF. If yes, then concatenate a dublicate to
+%make a two dimensional array (needed for processing the IFs correctly)
+    if size(IF_,1)==1
+        IF_ = [IF_ ; IF_];
+    end
+
+%Check if entered length of interferogram is too long
 %Create placeholder for IF
     IF = zeros(size(IF_,1),L);
     IFPC = zeros(size(IF_,1),L);
     
+   
     for i = 1:size(IF_,1)        
 %Substract offset from each interferogram
         IF_(i,:) = IF_(i,:)-mean(IF_(i,:));
@@ -11,8 +19,13 @@ function [FFT,wn,IF] = JPKFFT(IF_, L, zerofilling, cutoff, checkAlignment, mode,
 %Calculate the offset of the individual interferograms with cross
 %correlating them to the first interferogram
         ref = 1;
+        if singleSided
+            [~,maxTemp] = max(abs(IF_(i,:)));
+            C = crossCorrelation((IF_(i,maxTemp-100:maxTemp+100)),(IF_(ref,maxTemp-100:maxTemp+100)));
+        else
+            C = crossCorrelation((IF_(i,round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))),(IF_(ref,round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))));
+        end
         
-        C = crossCorrelation((IF_(i,round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))),(IF_(ref,round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))));
         [~, maxIdxC] = max(real(C));
         
         maxIdxC = maxIdxC-(size(C,2)+1)/2;
@@ -26,15 +39,30 @@ function [FFT,wn,IF] = JPKFFT(IF_, L, zerofilling, cutoff, checkAlignment, mode,
     IFMean = mean(IF_);
     
     for i = 1:size(IF_,1)  
-        C = crossCorrelation((IF_(i,round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))),(IFMean(round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))));
-        [~, maxIdxC] = max(real(C));
+        if singleSided
+            [~,maxTemp] = max(abs(IF_(i,:)));
+            C = crossCorrelation((IF_(i,maxTemp-100:maxTemp+100)),(IF_(ref,maxTemp-100:maxTemp+100)));
+        else
+            C = crossCorrelation((IF_(i,round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))),(IFMean(round(size(IF_,2)*cutoff):round(size(IF_(1,:),2)*(1-cutoff)))));
+        end
         
+        [~, maxIdxC] = max(real(C));
         maxIdxC = maxIdxC-(size(C,2)+1)/2;
 %Shift individual interferograms according the cross correlation such that
 %all interferograms overlay
         IF_(i,:) = circshift(IF_(i,:),[0 -maxIdxC]);
     end
     
+    
+%If singleSided is selected, make the interferograms roughly symmetric by
+%appending zeros on the reference arm side
+    if singleSided
+        [~,singleSidedAddLength] = max(real(mean(IF_)));
+        IF_ = [IF_ zeros(size(IF_,1),singleSidedAddLength)];
+        if singleSidedAddLength>L
+            L = L.*2;
+        end
+    end
     
     %Decide for Apodization type
 
@@ -62,7 +90,8 @@ function [FFT,wn,IF] = JPKFFT(IF_, L, zerofilling, cutoff, checkAlignment, mode,
     end     
 
     %Find centerburst of aligned spectra
-    [~, maxIdx] = max(real(mean(IF_)));
+    [~, maxIdx] = max(abs(real(mean(IF_(:,50:end-50)))));
+    maxIdx = maxIdx +50;
     
     %Cut Interferograms 
     IF = IF_(:,maxIdx-L/2:maxIdx+L/2-1);
@@ -97,7 +126,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, L, zerofilling, cutoff, checkAlignment, mode,
 
     w = fftshift(w);
     
-    switch mode
+    switch mode %mode 2 takes the reference side only, mode 3 the sample side and everything else the whole interferogram
         case 2
             wAsym(:,L/2+1:end) = apo(:,L/2+1:end)./(ones(size(IF,1),1)*w(L/2+1:end));
             IF = IF.*wAsym;

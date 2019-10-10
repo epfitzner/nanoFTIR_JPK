@@ -22,7 +22,7 @@ function varargout = evalSpectraJPK(varargin)
 
 % Edit the above text to modify the response to help evalSpectraJPK
 
-% Last Modified by GUIDE v2.5 06-Aug-2018 17:18:25
+% Last Modified by GUIDE v2.5 31-Oct-2018 10:09:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -88,7 +88,7 @@ function pushbuttonLoadReference_Callback(hObject, eventdata, handles)
 
 global home
 
-[filename,path]  = uigetfile([home '/*.*']);
+[filename,path]  = uigetfile('*');%uigetfile([home '/*.*']);
 
 %Stop if dialog was cancled.
 if filename==0
@@ -104,6 +104,9 @@ checkAlignment = get(handles.checkboxCheckAlignment,'value');
 %Get Mode: either just take sample side or reference side or both
 mode = get(handles.popupmenuMode,'value');
 
+%Get if the interferograms are recorded single sided
+singleSided = get(handles.checkboxSingleSided,'value');
+
 %Get Phasecorrection
 phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 
@@ -116,6 +119,7 @@ isBinary = get(handles.checkboxLoadBinary,'value');
 %Which harmonic to load
 harm = str2double(get(handles.editHarmonic,'string'));
 
+cutoff =0.3;
 if isBinary
     data = readLabviewData([path filename],4,'double',true);
     IFfw = reshape(data(harm,1,:,:),[size(data,3) size(data,4)]);
@@ -124,8 +128,9 @@ else
     [IFfw, IFbw] = loadJPKspectra([path filename]);
 end
         
-[fwRef,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
-[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+
+[fwRef,~] = JPKFFT(IFfw,n,zerofilling,cutoff,checkAlignment,mode,phaseCorrection,singleSided);
+[bwRef,wn] = JPKFFT(IFbw,n,zerofilling,cutoff,checkAlignment,mode,phaseCorrection,singleSided);
 
 %Save interferograms, spectra and wavenumber arrays in handles and
 %workspace variables.
@@ -317,7 +322,7 @@ function pushbuttonLoadSample_Callback(hObject, eventdata, handles)
 %the default home directory to start in the uigetfile dialog.
 global home
 
-[filename,path]  = uigetfile([home '/*.*'],'Multiselect','on');
+[filename,path]  = uigetfile('*','Multiselect','on');%uigetfile([home '/*.*']);uigetfile([home '/*.*'],'Multiselect','on');
 
 %Stop if dialog was cancled.
 if path == 0
@@ -333,6 +338,9 @@ checkAlignment = get(handles.checkboxCheckAlignment,'value');
 %Get Mode: either just take sample side or reference side or both
 mode = get(handles.popupmenuMode,'value');
 
+%Get if the interferograms are recorded single sided
+singleSided = get(handles.checkboxSingleSided,'value');
+
 %Get Phasecorrection
 phaseCorrection = get(handles.checkboxPhaseCorrection,'value');
 
@@ -345,6 +353,8 @@ isBinary = get(handles.checkboxLoadBinary,'value');
 %Which harmonic to load
 harm = str2double(get(handles.editHarmonic,'string'));
 
+cutoff =0.3;
+
 if iscell(filename)
     for i = 1:size(filename,2)
         %Load complex forward and backward interferograms.
@@ -356,8 +366,8 @@ if iscell(filename)
             IFbw = reshape(data(harm,2,:,:),[size(data,3) size(data,4)]);
 
             %Execute Zerofilling, alignment, Phasecorrection and FFT
-            [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
-            [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+            [fwSample,~] = JPKFFT(IFfw,n,zerofilling,cutoff,checkAlignment,mode,phaseCorrection,singleSided);
+            [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,cutoff,checkAlignment,mode,phaseCorrection,singleSided);
 
             handles.fwSample = fwSample;
             handles.bwSample = bwSample;
@@ -381,8 +391,8 @@ if iscell(filename)
             [IFfw, IFbw] = loadJPKspectra([path filename{i}]);
 
             %Execute Zerofilling, alignment, Phasecorrection and FFT
-            [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
-            [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+            [fwSample,~] = JPKFFT(IFfw,n,zerofilling,cutoff,checkAlignment,mode,phaseCorrection,singleSided);
+            [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,cutoff,checkAlignment,mode,phaseCorrection,singleSided);
 
             handles.fwSample = fwSample;
             handles.bwSample = bwSample;
@@ -414,8 +424,8 @@ else
     end
 
     %Execute Zerofilling, alignment, Phasecorrection and FFT
-    [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
-    [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection);
+    [fwSample,~] = JPKFFT(IFfw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection,singleSided);
+    [bwSample,wn] = JPKFFT(IFbw,n,zerofilling,0.3,checkAlignment,mode,phaseCorrection,singleSided);
     
     handles.fwSample = fwSample;
     handles.bwSample = bwSample;
@@ -752,3 +762,12 @@ function checkboxAppend_Callback(hObject, eventdata, handles)
 global colorCounter
 colorCounter = 0;
 % Hint: get(hObject,'Value') returns toggle state of checkboxAppend
+
+
+% --- Executes on button press in checkboxSingleSided.
+function checkboxSingleSided_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxSingleSided (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxSingleSided
