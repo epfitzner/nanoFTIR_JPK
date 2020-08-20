@@ -6,6 +6,9 @@ function [FFT,wn,IF] = JPKFFT(IF_, L, zerofilling, cutoff, checkAlignment, mode,
         IF_ = [IF_ ; IF_];
     end
 
+    if false
+        IF_ = real(IF_);
+    end
 %Check if entered length of interferogram is too long
 %Create placeholder for IF
     IF = zeros(size(IF_,1),L);
@@ -86,7 +89,7 @@ function [FFT,wn,IF] = JPKFFT(IF_, L, zerofilling, cutoff, checkAlignment, mode,
 
         %Phasecorrection
         wPC = [linspace(0,1,pcLength/2) linspace(1,0,pcLength/2)];
-        wPC = [zeros(1,L-pcLength/2) wPC zeros(1,L-pcLength/2)];
+        wPC = [zeros(1,(L-pcLength)/2) wPC zeros(1,(L-pcLength)/2)];
     end     
 
     %Find centerburst of aligned spectra
